@@ -24,6 +24,10 @@ public:
 
 	typedef TVideoFor< InPixType >									InVideo;
 
+	typedef std::auto_ptr<InVideo >									InVideoAP;
+
+	typedef std::auto_ptr<InVideo >									OutVideoAP;
+
 
 	typedef	TImageFor< ComputationalPixelType >						OutliersImage;	// stores informations about outliers, 0 - not outlier, more than 0 - outlier
 
@@ -39,11 +43,11 @@ protected:
 
 	MSFparams params;
 
-	InVideo inputVideo;
+	InVideoAP inputVideo;
 
-	InVideo	outputVideo;
+	InVideoAP outputVideo;
 
-	OutliersVideo outliersVideo;
+	OutliersVideoAP outliersVideo;
 
 public:
 
@@ -53,22 +57,24 @@ public:
 	virtual ~MarineSnowFilter() {}
 
 	//Main method, overload operator ()
-	virtual bool operator()(const InVideo & inputVideo, InVideo & outputVideo, OutliersVideo & outputOutliersVideo, MSFparams params) = 0;
+	virtual bool operator()(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params) = 0;
 
 protected:
+	//initialize filter
+	virtual void init(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params) = 0;
 
 	//looking for bright areas
 	void FindBrights()
 	{
-		for (int row = 0; row < inputVideo.GetFrameAt(fIdx)->GetRow(); row++)
+		for (int row = 0; row < inputVideo.get()->GetFrameAt(fIdx)->GetRow(); row++)
 		{
-			for (int col = 0; col < inputVideo.GetFrameAt(fIdx)->GetCol(); col++)
+			for (int col = 0; col < inputVideo.get()->GetFrameAt(fIdx)->GetCol(); col++)
 			{
-				bool suspected = outliersVideo.GetPixel(col, row, fIdx);
+				bool suspected = outliersVideo.get()->GetPixel(col, row, fIdx);
 
 				if (suspected)
 				{
-					InPixType pixel = inputVideo.GetPixel(col, row, fIdx);
+					InPixType pixel = inputVideo.get()->GetPixel(col, row, fIdx);
 					InPixType backWindowValue, forwardWindowValue;
 
 					if (params.typeForTimeComparison == 0)
@@ -88,7 +94,7 @@ protected:
 					}
 
 					if (Smaller(pixel, backWindowValue) || Smaller(pixel, forwardWindowValue)) {
-						outliersVideo.SetPixel(col, row, fIdx, 0);
+						outliersVideo.get()->SetPixel(col, row, fIdx, 0);
 					}
 				}
 			}

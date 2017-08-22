@@ -9,44 +9,21 @@ class MarineSnowFilterForColor : public MarineSnowFilter<_InPixType, _Computatio
 {
 protected:
 
-	TVideoFor< ComputationalPixelType >	 meanRGBdistanceVideo;
+	std::auto_ptr<TVideoFor< ComputationalPixelType > >	 meanRGBdistanceVideo;
 
 public:
 
 	//default constructor
 	MarineSnowFilterForColor(){}
 
-	virtual ~MarineSnowFilterForColor() 
+	virtual ~MarineSnowFilterForColor() {}
+
+	//Main method, overload operator ()inputVideo.get()->
+	virtual bool operator()(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params)
 	{
-		meanRGBdistanceVideo.DestroyFrames();
-	}
+		init(inVideo, outVideo, outOutliersVideo, params);
 
-	//Main method, overload operator ()
-	virtual bool operator()(const InVideo & inputVideo, InVideo & outputVideo, OutliersVideo & outputOutliersVideo, MSFparams params) 
-	{
-		this->inputVideo = inputVideo;
-		this->outputVideo = outputVideo;
-		this->outliersVideo = outputOutliersVideo;
-		this->params = params;
-
-		outputOutliersVideo.DestroyFrames();
-		outputVideo.DestroyFrames();
-
-		int kCols = inputVideo.GetFrameAt(0)->GetCol();
-		int kRows = inputVideo.GetFrameAt(0)->GetRow();
-
-		for (int frameNum = 0; frameNum < inputVideo.GetNumOfFrames(); frameNum++)
-		{
-			OutliersImage outliersFrame(kCols, kRows, 1);
-			outliersVideo.AttachOrphanedFrame(&outliersFrame);
-
-			InImage outputFrame(*inputVideo.GetFrameAt(frameNum));
-			outputVideo.AttachOrphanedFrame(&outputFrame);
-
-			MeanRGBdistances(*inputVideo.GetFrameAt(frameNum));
-		}
-
-		for (int frameNum = 0; frameNum < inputVideo.GetNumOfFrames(); frameNum++) 
+		for (int frameNum = 0; frameNum < inputVideo.get()->GetNumOfFrames(); frameNum++) 
 		{			
 			this->fIdx = frameNum - 1;
 
@@ -54,6 +31,8 @@ public:
 			{
 				//start counting time for processing one frame
 				long long int time = clock();
+
+				MeanRGBdistances(*inputVideo.get()->GetFrameAt(frameNum));
 
 				//for color frames - only pixels which hava RGBdistance low enough could be outliers
 				CheckRGBdistance();
@@ -66,23 +45,51 @@ public:
 			}
 
 		}
+
+		outVideo = this->outputVideo;
+		outOutliersVideo = this->outliersVideo;
+		inVideo = this->inputVideo;
+
 		return true;
 	}
 
 protected:
+	//initialize filter
+	virtual void init(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params)
+	{
+		int kCols = inVideo.get()->GetFrameAt(0)->GetCol();
+		int kRows = inVideo.get()->GetFrameAt(0)->GetRow();
+		int numOfFrames = inVideo.get()->GetNumOfFrames();
+
+		this->inputVideo = inVideo;
+
+		OutVideoAP out(new InVideo(*inputVideo.get()));
+		this->outputVideo = out;
+
+		OutliersVideoAP outliers(new OutliersVideo(kCols, kRows, numOfFrames, 1));
+		this->outliersVideo = outliers;
+
+		this->params = params;
+
+		int numberOfSectors = sqrt(this->params.sectorsRGBnumber);		//convert to number of sectors per row axis or col axis
+		int meanRGBsize = 3 * numberOfSectors + 2;						//size of frames accumulate meanRGBdistances for sectors
+		std::auto_ptr<TVideoFor< ComputationalPixelType > > mean(new TVideoFor< ComputationalPixelType >(meanRGBsize, meanRGBsize, numOfFrames, 0));
+		this->meanRGBdistanceVideo = mean;
+	}
+
 	//checking if RGBdistance is low enough, result saved into outliersFrames
 	void CheckRGBdistance() 
 	{
 		int idx;
-		int numberOfSectors = sqrt(params.sectorsRGBnumber);						//convert to number of sectors per row axis or col axis
-		int Rlen = ceil(((double)inputVideo.GetFrameAt(fIdx)->GetRow() / (double)numberOfSectors) / 3.0);			//sector distance between overlapped sectors in pixel from row axis
-		int Clen = ceil(((double)inputVideo.GetFrameAt(fIdx)->GetCol() / (double)numberOfSectors) / 3.0);			//sector distance between overlapped sectors in pixel from col axis
+		int numberOfSectors = sqrt(params.sectorsRGBnumber);	//convert to number of sectors per row axis or col axis
+		int Rlen = ceil(((double)inputVideo.get()->GetFrameAt(fIdx)->GetRow() / (double)numberOfSectors) / 3.0);			//sector distance between overlapped sectors in pixel from row axis
+		int Clen = ceil(((double)inputVideo.get()->GetFrameAt(fIdx)->GetCol() / (double)numberOfSectors) / 3.0);			//sector distance between overlapped sectors in pixel from col axis
 		//checking loop
-		for (int row = 0; row < inputVideo.GetFrameAt(fIdx)->GetRow(); row++) 
+		for (int row = 0; row < inputVideo.get()->GetFrameAt(fIdx)->GetRow(); row++) 
 		{
-			for (int col = 0; col < inputVideo.GetFrameAt(fIdx)->GetCol(); col++) 
+			for (int col = 0; col < inputVideo.get()->GetFrameAt(fIdx)->GetCol(); col++) 
 			{
-				InPixType pixel = inputVideo.GetPixel(col, row, fIdx);
+				InPixType pixel = inputVideo.get()->GetPixel(col, row, fIdx);
 				long RGBdist = RGBdistance(pixel);
 
 				int counterRGB = 0;
@@ -94,7 +101,7 @@ protected:
 
 				if (counterRGB < params.RGBsectorsPercent * 9 / 100) 
 				{
-					outliersVideo.SetPixel(col, row, fIdx, 0);
+					outliersVideo.get()->SetPixel(col, row, fIdx, 0);
 				}
 			}
 		}
@@ -105,7 +112,7 @@ protected:
 	{
 		int r = (row / Rlen) + (number / 3);
 		int c = (col / Clen) + (number % 3);
-		if (RGBdist < (long)(params.RGBdistanceCoeff * (double)meanRGBdistanceVideo.GetPixel(c, r, fIdx))) return 1;
+		if (RGBdist < (long)(params.RGBdistanceCoeff * (double)meanRGBdistanceVideo.get()->GetPixel(c, r, fIdx))) return 1;
 		return 0;
 	}
 
@@ -113,9 +120,9 @@ protected:
 	virtual InPixType MaxFromWindow(int c, int r, int fIdx)
 	{
 		int startRow = max(r - (params.sizeWindowForTimeComparison / 2), 0);
-		int stopRow = min(r + 1 + (params.sizeWindowForTimeComparison / 2), inputVideo.GetFrameAt(fIdx)->GetRow());
+		int stopRow = min(r + 1 + (params.sizeWindowForTimeComparison / 2), inputVideo.get()->GetFrameAt(fIdx)->GetRow());
 		int startCol = max(c - (params.sizeWindowForTimeComparison / 2), 0);
-		int stopCol = min(c + 1 + (params.sizeWindowForTimeComparison / 2), inputVideo.GetFrameAt(fIdx)->GetCol());
+		int stopCol = min(c + 1 + (params.sizeWindowForTimeComparison / 2), inputVideo.get()->GetFrameAt(fIdx)->GetCol());
 
 		InPixType max;
 
@@ -127,7 +134,7 @@ protected:
 		{
 			for (int col = startCol; col < stopCol; col++) 
 			{
-				InPixType pixel = inputVideo.GetPixel(col, row, fIdx);
+				InPixType pixel = inputVideo.get()->GetPixel(col, row, fIdx);
 				for (int channel = 0; channel < 3; channel++) 
 				{
 					if (pixel[channel] > max[channel]) 
@@ -145,9 +152,9 @@ protected:
 	{
 		int size = params.sizeWindowForTimeComparison;
 		int startRow = max(r - (size / 2), 0);
-		int stopRow = min(r + 1 + (size / 2), inputVideo.GetFrameAt(fIdx)->GetRow());
+		int stopRow = min(r + 1 + (size / 2), inputVideo.get()->GetFrameAt(fIdx)->GetRow());
 		int startCol = max(c - (size / 2), 0);
-		int stopCol = min(c + 1 + (size / 2), inputVideo.GetFrameAt(fIdx)->GetCol());
+		int stopCol = min(c + 1 + (size / 2), inputVideo.get()->GetFrameAt(fIdx)->GetCol());
 
 		InPixType med;
 		MonochromeImage tab[3];
@@ -162,7 +169,7 @@ protected:
 			int relCol = 0;
 			for (int col = startCol; col < stopCol; col++) 
 			{
-				InPixType pixel = inputVideo.GetPixel(col, row, fIdx);
+				InPixType pixel = inputVideo.get()->GetPixel(col, row, fIdx);
 				for (int channel = 0; channel < 3; channel++) 
 				{
 					tab[channel].SetPixel(relCol, relRow, pixel[channel]);
@@ -186,9 +193,9 @@ protected:
 	{
 		int size = params.sizeWindowForTimeComparison;
 		int startRow = max(r - (size / 2), 0);
-		int stopRow = min(r + 1 + (size / 2), inputVideo.GetFrameAt(fIdx)->GetRow());
+		int stopRow = min(r + 1 + (size / 2), inputVideo.get()->GetFrameAt(fIdx)->GetRow());
 		int startCol = max(c - (size / 2), 0);
-		int stopCol = min(c + 1 + (size / 2), inputVideo.GetFrameAt(fIdx)->GetCol());
+		int stopCol = min(c + 1 + (size / 2), inputVideo.get()->GetFrameAt(fIdx)->GetCol());
 		InPixType sum;
 		long numberOfElements = 0;
 		sum[0] = 0;
@@ -201,7 +208,7 @@ protected:
 			for (int col = startCol; col < stopCol; col++) 
 			{
 				numberOfElements++;
-				InPixType pixel = inputVideo.GetPixel(c, r, fIdx);
+				InPixType pixel = inputVideo.get()->GetPixel(c, r, fIdx);
 				for (int channel = 0; channel < 3; channel++) 
 				{
 					sum[channel] += pixel[channel];
@@ -231,11 +238,7 @@ protected:
 		int numberOfSectors = sqrt(params.sectorsRGBnumber);		//convert to number of sectors per row axis or col axis
 		int Rlen = ceil(((double)frame.GetRow() / (double)numberOfSectors) / 3.0);			//sector distance between overlapped sectors in pixel from row axis
 		int Clen = ceil(((double)frame.GetCol() / (double)numberOfSectors) / 3.0);			//sector distance between overlapped sectors in pixel from col axis
-		int meanRGBsize = 3 * numberOfSectors + 2;					//size of frames accumulate meanRGBdistances for sectors
-
-		//initialize table
-		TImageFor< ComputationalPixelType > * meanRGBframe = new TImageFor< ComputationalPixelType >(meanRGBsize, meanRGBsize, 0);
-		
+		int meanRGBsize = 3 * numberOfSectors + 2;					//size of frames accumulate meanRGBdistances for sectors		
 
 		//sum RGBdist value for all overlapped sectors
 		for (int row = 0; row < frame.GetRow(); row++) 
@@ -249,7 +252,7 @@ protected:
 				{
 					int r = (row / Rlen) + (i / 3);
 					int c = (col / Clen) + (i % 3);
-					meanRGBframe->SetPixel(c, r, meanRGBframe->GetPixel(c, r) + RGBdist);
+					meanRGBdistanceVideo.get()->SetPixel(c, r, fIdx, meanRGBdistanceVideo.get()->GetPixel(c, r, fIdx) + RGBdist);
 				}
 			}
 		}
@@ -267,12 +270,11 @@ protected:
 				if (j == 0 || j == 3 * numberOfSectors + 1) divisor /= 3;
 
 				//divide sum by number of element have been sumed
-				meanRGBframe->SetPixel(i, j, meanRGBframe->GetPixel(i, j) / divisor);
+				meanRGBdistanceVideo.get()->SetPixel(i, j, fIdx, meanRGBdistanceVideo.get()->GetPixel(i, j, fIdx) / divisor);
 				
 			}
 		}
 		//attach to the video
-		meanRGBdistanceVideo.AttachOrphanedFrame(meanRGBframe);
 	}
 
 	//function to compare pixxels in connection with choosen parameters

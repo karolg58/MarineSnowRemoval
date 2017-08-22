@@ -13,15 +13,9 @@ public:
 
 	virtual ~MarineSnowFilterForMonochrome(){}
 
-	virtual bool operator()(const InVideo & inputVideo, InVideo & outputVideo, OutliersVideo & outputOutliersVideo, MSFparams params) 
+	virtual bool operator()(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params)
 	{ 
-		this->inputVideo = inputVideo;
-		this->outputVideo = outputVideo;
-		this->outliersVideo = outputOutliersVideo;
-		this->params = params;
-
-		outputOutliersVideo.DestroyFrames();
-		outputVideo.DestroyFrames();
+		init(inVideo, outVideo, outOutliersVideo, params);
 
 		for (int frameNum = 0; frameNum < inputVideo.GetNumOfFrames(); frameNum++)
 		{
@@ -39,8 +33,30 @@ public:
 				cout << "time = " << clock() - time << endl;
 			}
 
+			outVideo = this->outputVideo;
+			outOutliersVideo = this->outliersVideo;
+			inVideo = this->inputVideo;
+
 		}
 		return true;
+	}
+
+protected:
+
+	//initialize filter
+	virtual void init(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params)
+	{
+		int kCols = inVideo.get()->GetFrameAt(0)->GetCol();
+		int kRows = inVideo.get()->GetFrameAt(0)->GetRow();
+		int numOfFrames = inVideo.get()->GetNumOfFrames();
+
+		this->inputVideo = inVideo;
+		OutVideoAP out(new InVideo(*inputVideo.get()));
+		this->outputVideo = out;
+
+		OutliersVideoAP outliers(new OutliersVideo(kCols, kRows, numOfFrames, 1));
+		this->outliersVideo = outliers;
+		this->params = params;
 	}
 
 	//calculate max value from window
