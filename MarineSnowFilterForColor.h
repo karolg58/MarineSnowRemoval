@@ -41,7 +41,7 @@ public:
 			outliersVideo.AttachOrphanedFrame(&outliersFrame);
 
 			InImage outputFrame(*inputVideo.GetFrameAt(frameNum));
-			outputVideo.AttachOrphanedFrame(outputFrame);
+			outputVideo.AttachOrphanedFrame(&outputFrame);
 
 			MeanRGBdistances(*inputVideo.GetFrameAt(frameNum));
 		}
