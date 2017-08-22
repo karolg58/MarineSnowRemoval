@@ -5,7 +5,7 @@
 #include "safe_pointer_vector.h"
 #include <Windows.h>
 
-#include "..\..\MarineSnow\MarineSnowFilter.h"
+#include "..\..\MarineSnowRemoval\MarineSnowFilter.h"
 
 
 int main(void) {
