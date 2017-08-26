@@ -10,7 +10,7 @@
 
 int main(void) {
 	int startFrame = 1200;
-	int numOfFrames = 3;
+	int numOfFrames = 5;
 	int endFrame = startFrame + numOfFrames;
 	MSFparams params;
 	std::auto_ptr<TVideoFor<Color_3x8_Pixel>> inputVideo(CreateAndOrphan_ColorVideo_FromFiles("C:\\Users\\Dell\\Desktop\\INZYNIERKA\\antarktyda_jpg\\frame", "jpg", startFrame, endFrame));
@@ -23,7 +23,7 @@ int main(void) {
 	//Save_JPEG_Frames
 	for (int i = 0; i < outputVideo.get()->GetNumOfFrames(); i++) 
 	{
-		Save_JPEG_Image(*outputVideo.get()->GetFrameAt(i), "C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnow\\OutputVideo\\out" + to_string(startFrame + i) + ".jpg");
+		Save_JPEG_Image(*outputVideo.get()->GetFrameAt(i), "C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnowRemoval\\OutputVideo\\out" + to_string(startFrame + i) + ".jpg");
 
 		//conversion
 		for (int row = 0; row < inputVideo.get()->GetFrameAt(i)->GetRow(); row++)
@@ -35,7 +35,7 @@ int main(void) {
 			}
 		}
 
-		Save_JPEG_Image((MonochromeImage)*outputOutliersVideo.get()->GetFrameAt(i), "C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnow\\OutputBoleanVideo\\outBool" + to_string(startFrame + i) + ".jpg");
+		Save_JPEG_Image((MonochromeImage)*outputOutliersVideo.get()->GetFrameAt(i), "C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnowRemoval\\OutputBoleanVideo\\outBool" + to_string(startFrame + i) + ".jpg");
 	}
 	system("pause");
 	return 0;

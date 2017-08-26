@@ -40,6 +40,17 @@ public:
 				//looking for brights areas at frame
 				FindBrights();
 
+				printArea(1160, 100, 350, 100, fIdx);
+
+				findAreas();
+
+				if (frameNum > 3)
+				{
+					checkNeighborhoods(fIdx - 1);
+				}
+
+				printArea(1160, 100, 350, 100, fIdx);
+
 				//filtering time
 				cout << "time = " << clock() - time << endl;
 			}
@@ -57,9 +68,9 @@ protected:
 	//initialize filter
 	virtual void init(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params)
 	{
-		int kCols = inVideo.get()->GetFrameAt(0)->GetCol();
-		int kRows = inVideo.get()->GetFrameAt(0)->GetRow();
-		int numOfFrames = inVideo.get()->GetNumOfFrames();
+		const int & kCols = inVideo.get()->GetFrameAt(0)->GetCol();
+		const int & kRows = inVideo.get()->GetFrameAt(0)->GetRow();
+		const int & numOfFrames = inVideo.get()->GetNumOfFrames();
 
 		this->inputVideo = inVideo;
 
@@ -80,7 +91,6 @@ protected:
 	//checking if RGBdistance is low enough, result saved into outliersFrames
 	void CheckRGBdistance() 
 	{
-		int idx;
 		int numberOfSectors = sqrt(params.sectorsRGBnumber);	//convert to number of sectors per row axis or col axis
 		int Rlen = ceil(((double)inputVideo.get()->GetFrameAt(fIdx)->GetRow() / (double)numberOfSectors) / 3.0);			//sector distance between overlapped sectors in pixel from row axis
 		int Clen = ceil(((double)inputVideo.get()->GetFrameAt(fIdx)->GetCol() / (double)numberOfSectors) / 3.0);			//sector distance between overlapped sectors in pixel from col axis
@@ -89,8 +99,8 @@ protected:
 		{
 			for (int col = 0; col < inputVideo.get()->GetFrameAt(fIdx)->GetCol(); col++) 
 			{
-				InPixType pixel = inputVideo.get()->GetPixel(col, row, fIdx);
-				long RGBdist = RGBdistance(pixel);
+				const InPixType & pixel = inputVideo.get()->GetPixel(col, row, fIdx);
+				const ComputationalPixelType & RGBdist = RGBdistance(pixel);
 
 				int counterRGB = 0;
 
@@ -108,7 +118,7 @@ protected:
 	}
 
 	//checking RGBdistance in single region
-	inline int CheckRGBdistForSector(int col, int row, int Clen, int Rlen, int RGBdist, int number) 
+	inline int CheckRGBdistForSector(const int & col, const int & row, const int & Clen, const int & Rlen, const int & RGBdist, const int & number)
 	{
 		int r = (row / Rlen) + (number / 3);
 		int c = (col / Clen) + (number % 3);
@@ -117,7 +127,7 @@ protected:
 	}
 
 	//calculate max value from window
-	virtual InPixType MaxFromWindow(int c, int r, int fIdx)
+	virtual InPixType MaxFromWindow(const int & c, const int & r, const int & fIdx)
 	{
 		int startRow = max(r - (params.sizeWindowForTimeComparison / 2), 0);
 		int stopRow = min(r + 1 + (params.sizeWindowForTimeComparison / 2), inputVideo.get()->GetFrameAt(fIdx)->GetRow());
@@ -134,7 +144,7 @@ protected:
 		{
 			for (int col = startCol; col < stopCol; col++) 
 			{
-				InPixType pixel = inputVideo.get()->GetPixel(col, row, fIdx);
+				InPixType & pixel = inputVideo.get()->GetPixel(col, row, fIdx);
 				for (int channel = 0; channel < 3; channel++) 
 				{
 					if (pixel[channel] > max[channel]) 
@@ -148,9 +158,9 @@ protected:
 	}
 
 	//calculate median value from window
-	virtual InPixType MedFromWindow(int c, int r, int fIdx)
+	virtual InPixType MedFromWindow(const int & c, const int & r, const int & fIdx)
 	{
-		int size = params.sizeWindowForTimeComparison;
+		const int & size = params.sizeWindowForTimeComparison;
 		int startRow = max(r - (size / 2), 0);
 		int stopRow = min(r + 1 + (size / 2), inputVideo.get()->GetFrameAt(fIdx)->GetRow());
 		int startCol = max(c - (size / 2), 0);
@@ -169,7 +179,7 @@ protected:
 			int relCol = 0;
 			for (int col = startCol; col < stopCol; col++) 
 			{
-				InPixType pixel = inputVideo.get()->GetPixel(col, row, fIdx);
+				InPixType & pixel = inputVideo.get()->GetPixel(col, row, fIdx);
 				for (int channel = 0; channel < 3; channel++) 
 				{
 					tab[channel].SetPixel(relCol, relRow, pixel[channel]);
@@ -189,9 +199,9 @@ protected:
 	}
 
 	//calculate average value from window
-	virtual InPixType AverageFromWindow(int c, int r, int fIdx)
+	virtual InPixType AverageFromWindow(const int & c, const int & r, const int & fIdx)
 	{
-		int size = params.sizeWindowForTimeComparison;
+		const int & size = params.sizeWindowForTimeComparison;
 		int startRow = max(r - (size / 2), 0);
 		int stopRow = min(r + 1 + (size / 2), inputVideo.get()->GetFrameAt(fIdx)->GetRow());
 		int startCol = max(c - (size / 2), 0);
@@ -208,7 +218,7 @@ protected:
 			for (int col = startCol; col < stopCol; col++) 
 			{
 				numberOfElements++;
-				InPixType pixel = inputVideo.get()->GetPixel(c, r, fIdx);
+				InPixType & pixel = inputVideo.get()->GetPixel(c, r, fIdx);
 				for (int channel = 0; channel < 3; channel++) 
 				{
 					sum[channel] += pixel[channel];
@@ -226,7 +236,7 @@ protected:
 	}
 
 	//Calculate RGB distance
-	inline ComputationalPixelType RGBdistance(InPixType pixel) {
+	inline ComputationalPixelType RGBdistance(const InPixType & pixel) {
 		return abs((ComputationalPixelType)R(pixel)- (ComputationalPixelType)G(pixel)) 
 			+ abs((ComputationalPixelType)G(pixel) - (ComputationalPixelType)B(pixel)) 
 			+ abs((ComputationalPixelType)B(pixel) - (ComputationalPixelType)R(pixel));
@@ -245,8 +255,8 @@ protected:
 		{
 			for (int col = 0; col < frame.GetCol(); col++) 
 			{
-				InPixType pixel = frame.GetPixel(col, row);				//get pixel value
-				ComputationalPixelType RGBdist = RGBdistance(pixel);	//calculate RGBdistance
+				const InPixType & pixel = frame.GetPixel(col, row);				//get pixel value
+				const ComputationalPixelType & RGBdist = RGBdistance(pixel);	//calculate RGBdistance
 
 				for (int i = 0; i < 9; i++)
 				{

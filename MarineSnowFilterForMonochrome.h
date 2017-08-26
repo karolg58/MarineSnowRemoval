@@ -29,6 +29,13 @@ public:
 				//looking for brights areas at frame
 				FindBrights();
 
+				findAreas();
+
+				if (frameNum > 3)
+				{
+					checkNeighborhoods(fIdx - 1);
+				}
+
 				//filtering time
 				cout << "time = " << clock() - time << endl;
 			}
@@ -60,7 +67,7 @@ protected:
 	}
 
 	//calculate max value from window
-	virtual InPixType MaxFromWindow(int c, int r, int fIdx)
+	virtual InPixType MaxFromWindow(const int & c, const int & r, const int & fIdx)
 	{
 		int startRow = max(r - (params.sizeWindowForTimeComparison / 2), 0);
 		int stopRow = min(r + 1 + (params.sizeWindowForTimeComparison / 2), inputVideo.GetFrameAt(fIdx)->GetRow());
@@ -73,7 +80,7 @@ protected:
 		{
 			for (int col = startCol; col < stopCol; col++)
 			{
-				InPixType pixel = inputVideo.GetPixel(col, row, fIdx);
+				InPixType & pixel = inputVideo.GetPixel(col, row, fIdx);
 
 				if (pixel > max)
 				{
@@ -85,7 +92,7 @@ protected:
 	}
 
 	//calculate median value from window
-	virtual InPixType MedFromWindow(int c, int r, int fIdx)
+	virtual InPixType MedFromWindow(const int & c, const int & r, const int & fIdx)
 	{
 		int size = params.sizeWindowForTimeComparison;
 		int startRow = max(r - (size / 2), 0);
@@ -102,7 +109,7 @@ protected:
 			int relCol = 0;
 			for (int col = startCol; col < stopCol; col++) 
 			{
-				InPixType pixel = inputVideo.GetPixel(col, row, fIdx);
+				InPixType & pixel = inputVideo.GetPixel(col, row, fIdx);
 				for (int channel = 0; channel < 3; channel++) 
 				{
 					tab.SetPixel(relCol, relRow, pixel);
@@ -122,7 +129,7 @@ protected:
 	}
 
 	//calculate average value from window
-	virtual InPixType AverageFromWindow(int c, int r, int fIdx)
+	virtual InPixType AverageFromWindow(const int & c, const int & r, const int & fIdx)
 	{
 		int size = params.sizeWindowForTimeComparison;
 		int startRow = max(r - (size / 2), 0);
@@ -140,7 +147,7 @@ protected:
 			for (int col = startCol; col < stopCol; col++)
 			{
 				numberOfElements++;
-				InPixType pixel = inputVideo.GetPixel(c, r, fIdx);
+				InPixType & pixel = inputVideo.GetPixel(c, r, fIdx);
 				sum += pixel;
 			}
 		}

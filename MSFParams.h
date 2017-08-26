@@ -12,6 +12,14 @@ public:
 	
 	int sizeWindowForTimeComparison = 1;//n -> window n x n
 	double windowValueCoeff = 1.1;	
+
+	int availableSkippedPixelsForFindingArea = 1;
+
+	int minAreaForSuspectOutliers = 9;
+	double minRadiusForCheckingNeighbours = 10.0; //relative for blur size
+	double maxRadiusForCheckingNeighbours = 20.0; 
+	double minCoeffForCompareNeighboursAreas = 0.6;
+	double maxCoeffForCompareNeighboursAreas = 1 / minCoeffForCompareNeighboursAreas;
 };
 
 #endif
