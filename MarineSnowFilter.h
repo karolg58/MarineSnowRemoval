@@ -155,7 +155,7 @@ protected:
 				if (visited == false && suspected == true) 
 				{
 					ComputationalPixelType area = findSingleArea(visitedFrame, col, row, availableSkipped, meanCol, meanRow);
-					if (outliersVideo.get()->GetPixel(meanCol, meanRow, fIdx) == 1)
+					if (outliersVideo.get()->GetPixel(meanCol, meanRow, fIdx) == 1 && visitedFrame.get()->GetPixel(meanCol, meanRow))
 					{
 						confirmArea(meanCol, meanRow, fIdx);
 						outliersVideo.get()->SetPixel(meanCol, meanRow, fIdx, area);
