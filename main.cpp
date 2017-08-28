@@ -9,8 +9,8 @@
 
 
 int main(void) {
-	int startFrame = 1200;
-	int numOfFrames = 5;
+	int startFrame = 1197;
+	int numOfFrames = 10;
 	int endFrame = startFrame + numOfFrames;
 	MSFparams params;
 	std::auto_ptr<TVideoFor<Color_3x8_Pixel>> inputVideo(CreateAndOrphan_ColorVideo_FromFiles("C:\\Users\\Dell\\Desktop\\INZYNIERKA\\antarktyda_jpg\\frame", "jpg", startFrame, endFrame));

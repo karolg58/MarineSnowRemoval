@@ -155,8 +155,15 @@ protected:
 				if (visited == false && suspected == true) 
 				{
 					ComputationalPixelType area = findSingleArea(visitedFrame, col, row, availableSkipped, meanCol, meanRow);
-					//tu uwaga na rogale
-					outliersVideo.get()->SetPixel(meanCol, meanRow, fIdx, area);
+					if (outliersVideo.get()->GetPixel(meanCol, meanRow, fIdx) == 1)
+					{
+						confirmArea(meanCol, meanRow, fIdx);
+						outliersVideo.get()->SetPixel(meanCol, meanRow, fIdx, area);
+					}
+					else//shape is not like marine snow
+					{
+						clearArea(col, row, fIdx);
+					}
 				}
 			}
 		}
@@ -184,22 +191,23 @@ protected:
 			if (visited == false)
 			{
 				const bool suspected = outliersVideo.get()->GetPixel(c, r, fIdx);
-				if (suspected) 
+				if (suspected || skipped < availableSkipped)
 				{
 					visitedFrame.get()->SetPixel(c, r, true);
-					addAdjacentPixelsToQueue(Q, c, r, 0);
 					sum += 1;
-					if (c > maxCol) maxCol = c;
-					if (c < minCol) minCol = c;
-					if (r > maxRow) maxRow = r;
-					if (r < minRow) minRow = r;
-				}
-				else if (skipped < availableSkipped)
-				{
-					visitedFrame.get()->SetPixel(c, r, true);
-					addAdjacentPixelsToQueue(Q, c, r, skipped + 1);
-					sum += 1;
-					outliersVideo.get()->SetPixel(c, r, fIdx, 1);
+					if (suspected)
+					{
+						addAdjacentPixelsToQueue(Q, c, r, 0);
+						if (c > maxCol) maxCol = c;
+						if (c < minCol) minCol = c;
+						if (r > maxRow) maxRow = r;
+						if (r < minRow) minRow = r;
+					}
+					else
+					{
+						addAdjacentPixelsToQueue(Q, c, r, skipped + 1);
+						outliersVideo.get()->SetPixel(c, r, fIdx, 1);
+					}
 				}
 			}
 		}
@@ -316,6 +324,26 @@ protected:
 			if (outliersVideo.get()->GetPixel(c, r, fIdx) > 0)
 			{
 				outliersVideo.get()->SetPixel(c, r, fIdx, 0);
+				addAdjacentPixelsToQueue(Q, c, r, skipped + 1);
+			}
+		}
+	}
+
+	void confirmArea(const int & col, const int & row, const int & fIdx)
+	{
+		std::queue<int> Q;
+		Q.push(col);
+		Q.push(row);
+		Q.push(0);
+
+		while (!Q.empty())
+		{
+			int c = Q.front(); Q.pop();
+			int r = Q.front(); Q.pop();
+			int skipped = Q.front(); Q.pop();
+			if (outliersVideo.get()->GetPixel(c, r, fIdx) == 1)
+			{
+				outliersVideo.get()->SetPixel(c, r, fIdx, 2);
 				addAdjacentPixelsToQueue(Q, c, r, skipped + 1);
 			}
 		}
