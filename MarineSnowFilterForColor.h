@@ -40,7 +40,7 @@ public:
 				//looking for brights areas at frame
 				FindBrights();
 
-				printArea(1160, 100, 350, 100, fIdx);
+				//printArea(1160, 100, 350, 100, fIdx);
 
 				findAreas();
 
@@ -49,7 +49,7 @@ public:
 					checkNeighborhoods(fIdx - 1);
 				}
 
-				printArea(1160, 100, 350, 100, fIdx);
+				//printArea(1160, 100, 350, 100, fIdx);
 
 				//filtering time
 				cout << "time = " << clock() - time << endl;
