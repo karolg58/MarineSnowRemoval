@@ -65,12 +65,12 @@ public:
 		}
 	}
 
-	void draw() 
+	int draw() 
 	{
-		if (colsList.size() != rowsList.size()) return;
+		if (colsList.size() != rowsList.size()) return - 1;
 		for (int i = 0; i < colsList.size(); i++)
 		{
-			if (colsList[i].size() != rowsList[i].size()) return;
+			if (colsList[i].size() != rowsList[i].size()) return - 2;
 			int len = colsList[i].size();
 			int minCol = image.get()->GetCol();
 			int minRow = image.get()->GetRow();
@@ -84,11 +84,12 @@ public:
 				if (rowsList[i][j] < minRow) minRow = rowsList[i][j];
 				drawLine(colsList[i][j], rowsList[i][j], colsList[i][(j + 1) % len], rowsList[i][(j + 1) % len]);
 			}
-			fill((maxCol + minCol)/2, (maxRow + minRow)/2);
+			if (fill((maxCol + minCol) / 2, (maxRow + minRow) / 2) != 0) return -3;
 		}
+		return 0;
 	}
 
-	void fill(int col, int row)
+	int fill(int col, int row)
 	{
 		std::queue<int> Q;
 		Q.push(col);
@@ -111,13 +112,14 @@ public:
 					Q.push(r1);
 				}
 			}
-			if (Q.size() > 1000000) break;
+			if (Q.size() > 1000000) return -1;
 		}
+		return 0;
 	}
 
-	void drawAndSave(string path)
+	int drawAndSave(string path)
 	{
-		draw();
+		if (draw() != 0) return -1;
 		Save_JPEG_Image(*image.get(), path);
 	}
 };
