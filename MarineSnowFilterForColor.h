@@ -30,7 +30,7 @@ public:
 			if (frameNum > 1) 
 			{
 				//start counting time for processing one frame
-				long long int time = clock();
+				//long long int time = clock();
 
 				MeanRGBdistances(*inputVideo.get()->GetFrameAt(frameNum));
 
@@ -52,7 +52,7 @@ public:
 				//printArea(1160, 100, 350, 100, fIdx);
 
 				//filtering time
-				cout << "time = " << clock() - time << endl;
+				//cout << "time = " << clock() - time << endl;
 			}
 
 		}

@@ -122,6 +122,12 @@ public:
 		if (draw() != 0) return -1;
 		Save_JPEG_Image(*image.get(), path);
 	}
+
+	MIAP drawAndReturn()
+	{
+		if (draw() != 0) return MIAP();
+		return image;
+	}
 };
 
 

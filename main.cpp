@@ -7,11 +7,13 @@
 
 #include "..\..\MarineSnowRemoval\MarineSnowFilter.h"
 #include "..\..\MarineSnowRemoval\Polygons.h"
+#include "..\..\MarineSnowRemoval\Comparator.h"
 
 
 int main(void) {
-	int startFrame = 1190;
-	int numOfFrames = 1;
+	string startPath = "C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnowRemoval";
+	int startFrame = 1196;//real + 2
+	int numOfFrames = 7;//real - 4
 	int endFrame = startFrame + numOfFrames;
 	MSFparams params;
 	std::auto_ptr<TVideoFor<Color_3x8_Pixel>> inputVideo(CreateAndOrphan_ColorVideo_FromFiles("C:\\Users\\Dell\\Desktop\\INZYNIERKA\\antarktyda_jpg\\frame", "jpg", startFrame, endFrame));
@@ -20,13 +22,80 @@ int main(void) {
 	int kCols = inputVideo.get()->GetFrameAt(0)->GetCol();
 	int kRows = inputVideo.get()->GetFrameAt(0)->GetRow();
 
+	MVAP userVideo(new MonochromeVideo(kCols, kRows, 0));
+	for (int i = startFrame + 2; i < endFrame - 2; i++)
+	{
+		Polygons polygonsImage(kCols, kRows);
+		polygonsImage.loadMetaData(startPath + "\\MetaData\\frame" + to_string(i) + "_MetaData.txt");
+		MIAP userImage = polygonsImage.drawAndReturn();
+		Save_JPEG_Image(*userImage.get(), startPath + "\\Masks\\mask" + to_string(i) + ".jpg");
+		userVideo.get()->AttachOrphanedFrame(new MonochromeImage(*userImage.get()));
+	}
+
 	MarineSnowFilterForColor<Color_3x8_Pixel> filter;
+	Comparator compare;
+	queue<MSFparams> Q;
+	long minDiff = MAXLONG;
+
+	for (params.sectorsRGBnumber = 9; params.sectorsRGBnumber <= 9; params.sectorsRGBnumber += 16)
+	{
+		for (params.RGBdistanceCoeff = 1.0; params.RGBdistanceCoeff <= 1.41; params.RGBdistanceCoeff += 0.2)
+		{
+			for (params.RGBsectorsPercent = 90; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 10)
+			{
+				//12x
+				long long int time = clock();
+				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 1; params.typeForTimeComparison++)
+				{
+					for (params.sizeWindowForTimeComparison = 1; params.sizeWindowForTimeComparison <= 3; params.sizeWindowForTimeComparison += 2)
+					{
+						for (params.windowValueCoeff = 1.0; params.windowValueCoeff <= 1.21; params.windowValueCoeff += 0.1)
+						{
+							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 2; params.availableSkippedPixelsForFindingArea++)
+							{
+								for (params.minRadiusForCheckingNeighbours = 3; params.minRadiusForCheckingNeighbours <= 9; params.minRadiusForCheckingNeighbours += 3)
+								{
+									for (params.maxRadiusForCheckingNeighbours = 10; params.maxRadiusForCheckingNeighbours <= 20; params.maxRadiusForCheckingNeighbours += 5)
+									{
+										for (params.minCoeffForCompareNeighboursAreas = 0.5; params.minCoeffForCompareNeighboursAreas <= 0.81; params.minCoeffForCompareNeighboursAreas += 0.3)
+										{
+											params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
+											//filter(inputVideo, outputVideo, outputOutliersVideo, params);
+											long res = 0;
+											for (int i = startFrame + 2; i < endFrame - 2; i++)
+											{
+												res += 0;// (long)compare(*userVideo.get()->GetFrameAt(i), *outputOutliersVideo.get()->GetFrameAt(i + 2));
+											}
+											if (res <= minDiff) 
+											{
+												minDiff = res;
+												Q.push(params);
+												if (Q.size() > 100)
+												{
+													Q.pop();
+												}
+											}
+										}
+									}
+								}
+
+							}
+						}
+					}
+				}
+				cout << "time = " << (clock() - time)/1000 << endl;//12x
+			}
+		}
+	}
+
+	cout << minDiff << endl;
+	params = Q.back();
 	filter(inputVideo, outputVideo, outputOutliersVideo, params);
 
 	//Save_JPEG_Frames
 	for (int i = 0; i < outputVideo.get()->GetNumOfFrames(); i++) 
 	{
-		Save_JPEG_Image(*outputVideo.get()->GetFrameAt(i), "C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnowRemoval\\OutputVideo\\out" + to_string(startFrame + i) + ".jpg");
+		Save_JPEG_Image(*outputVideo.get()->GetFrameAt(i), startPath + "\\OutputVideo\\out" + to_string(startFrame + i) + ".jpg");
 
 		//conversion
 		for (int row = 0; row < inputVideo.get()->GetFrameAt(i)->GetRow(); row++)
@@ -38,12 +107,10 @@ int main(void) {
 			}
 		}
 
-		Save_JPEG_Image((MonochromeImage)*outputOutliersVideo.get()->GetFrameAt(i), "C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnowRemoval\\OutputBoleanVideo\\outBool" + to_string(startFrame + i) + ".jpg");
+		Save_JPEG_Image((MonochromeImage)*outputOutliersVideo.get()->GetFrameAt(i), startPath + "\\OutputBoleanVideo\\outBool" + to_string(startFrame + i) + ".jpg");
 	}
 
-	Polygons polygonsImage(kCols, kRows);
-	polygonsImage.loadMetaData("C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnowRemoval\\MetaData\\out1200_MetaData.txt");
-	polygonsImage.drawAndSave("C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnowRemoval\\Masks\\mask.jpg");
+	cout << "endParams:" << endl << params << endl;
 
 	system("pause");
 	return 0;

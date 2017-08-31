@@ -20,6 +20,22 @@ public:
 	double maxRadiusForCheckingNeighbours = 20.0; 
 	double minCoeffForCompareNeighboursAreas = 0.6;
 	double maxCoeffForCompareNeighboursAreas = 1 / minCoeffForCompareNeighboursAreas;
+
+	friend ostream & operator<< (ostream &output, const MSFparams params){
+		return output
+			<< params.sectorsRGBnumber << endl
+			<< params.RGBdistanceCoeff << endl
+			<< params.RGBsectorsPercent << endl
+			<< params.typeForTimeComparison << endl
+			<< params.sizeWindowForTimeComparison << endl
+			<< params.windowValueCoeff << endl
+			<< params.availableSkippedPixelsForFindingArea << endl
+			<< params.minAreaForSuspectOutliers << endl
+			<< params.minRadiusForCheckingNeighbours << endl
+			<< params.maxRadiusForCheckingNeighbours << endl
+			<< params.minCoeffForCompareNeighboursAreas << endl
+			<< params.maxCoeffForCompareNeighboursAreas << endl;
+	}
 };
 
 #endif
