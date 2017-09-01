@@ -5,8 +5,8 @@ class Comparator {
 public:
 	int operator()(const MonochromeImage & userImage, const MonochromeImage & filterImage)
 	{
-		int kCols = userImage.GetCol();
-		int kRows = userImage.GetRow();
+		const int & kCols = userImage.GetCol();
+		const int & kRows = userImage.GetRow();
 		if (filterImage.GetCol() != kCols)  return -1;
 		if (filterImage.GetRow() != kRows)  return -1;
 		int counter = 0;

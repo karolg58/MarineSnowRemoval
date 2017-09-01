@@ -43,7 +43,7 @@ int main(void) {
 		{
 			for (params.RGBsectorsPercent = 90; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 10)
 			{
-				//12x
+				//6x
 				long long int time = clock();
 				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 1; params.typeForTimeComparison++)
 				{
@@ -60,11 +60,11 @@ int main(void) {
 										for (params.minCoeffForCompareNeighboursAreas = 0.5; params.minCoeffForCompareNeighboursAreas <= 0.81; params.minCoeffForCompareNeighboursAreas += 0.3)
 										{
 											params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
-											//filter(inputVideo, outputVideo, outputOutliersVideo, params);
+											filter(inputVideo, outputVideo, outputOutliersVideo, params);
 											long res = 0;
-											for (int i = startFrame + 2; i < endFrame - 2; i++)
+											for (int i = 0; i < numOfFrames - 4; i++)
 											{
-												res += 0;// (long)compare(*userVideo.get()->GetFrameAt(i), *outputOutliersVideo.get()->GetFrameAt(i + 2));
+												res += (long)compare(*(userVideo.get()->GetFrameAt(i)), *(outputOutliersVideo.get()->GetFrameAt(i + 2)));
 											}
 											if (res <= minDiff) 
 											{
@@ -83,7 +83,7 @@ int main(void) {
 						}
 					}
 				}
-				cout << "time = " << (clock() - time)/1000 << endl;//12x
+				cout << "time = " << (clock() - time)/1000 << endl;//6x
 			}
 		}
 	}
