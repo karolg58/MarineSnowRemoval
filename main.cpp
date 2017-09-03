@@ -4,6 +4,8 @@
 #include "HOSVD_Classifier.h"
 #include "safe_pointer_vector.h"
 #include <Windows.h>
+#include <iostream>
+#include <fstream>
 
 #include "..\..\MarineSnowRemoval\MarineSnowFilter.h"
 #include "..\..\MarineSnowRemoval\Polygons.h"
@@ -39,9 +41,9 @@ int main(void) {
 
 	for (params.sectorsRGBnumber = 9; params.sectorsRGBnumber <= 9; params.sectorsRGBnumber += 16)
 	{
-		for (params.RGBdistanceCoeff = 1.0; params.RGBdistanceCoeff <= 1.41; params.RGBdistanceCoeff += 0.2)
+		for (params.RGBdistanceCoeff = 0.8; params.RGBdistanceCoeff <= 1.21; params.RGBdistanceCoeff += 0.2)
 		{
-			for (params.RGBsectorsPercent = 90; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 10)
+			for (params.RGBsectorsPercent = 80; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 20)
 			{
 				//6x
 				long long int time = clock();
@@ -51,13 +53,13 @@ int main(void) {
 					{
 						for (params.windowValueCoeff = 1.0; params.windowValueCoeff <= 1.21; params.windowValueCoeff += 0.1)
 						{
-							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 2; params.availableSkippedPixelsForFindingArea++)
+							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 3; params.availableSkippedPixelsForFindingArea++)
 							{
-								for (params.minRadiusForCheckingNeighbours = 3; params.minRadiusForCheckingNeighbours <= 9; params.minRadiusForCheckingNeighbours += 3)
+								for (params.minRadiusForCheckingNeighbours = 6; params.minRadiusForCheckingNeighbours <= 12; params.minRadiusForCheckingNeighbours += 3)
 								{
-									for (params.maxRadiusForCheckingNeighbours = 10; params.maxRadiusForCheckingNeighbours <= 20; params.maxRadiusForCheckingNeighbours += 5)
+									for (params.maxRadiusForCheckingNeighbours = 13; params.maxRadiusForCheckingNeighbours <= 21; params.maxRadiusForCheckingNeighbours += 4)
 									{
-										for (params.minCoeffForCompareNeighboursAreas = 0.5; params.minCoeffForCompareNeighboursAreas <= 0.81; params.minCoeffForCompareNeighboursAreas += 0.3)
+										for (params.minCoeffForCompareNeighboursAreas = 0.4; params.minCoeffForCompareNeighboursAreas <= 0.71; params.minCoeffForCompareNeighboursAreas += 0.3)
 										{
 											params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
 											filter(inputVideo, outputVideo, outputOutliersVideo, params);
@@ -70,7 +72,7 @@ int main(void) {
 											{
 												minDiff = res;
 												Q.push(params);
-												if (Q.size() > 100)
+												if (Q.size() > 1000)
 												{
 													Q.pop();
 												}
@@ -78,7 +80,6 @@ int main(void) {
 										}
 									}
 								}
-
 							}
 						}
 					}
@@ -91,6 +92,7 @@ int main(void) {
 	cout << minDiff << endl;
 	params = Q.back();
 	filter(inputVideo, outputVideo, outputOutliersVideo, params);
+
 
 	//Save_JPEG_Frames
 	for (int i = 0; i < outputVideo.get()->GetNumOfFrames(); i++) 
@@ -111,6 +113,17 @@ int main(void) {
 	}
 
 	cout << "endParams:" << endl << params << endl;
+	ofstream myfile(startPath + "\\params_output.txt");
+	if (myfile.is_open())
+	{
+		while (!Q.empty())
+		{
+			myfile << Q.front() << endl << endl;
+			Q.pop();
+		}
+		myfile.close();
+	}
+	else cout << "Unable to open file";
 
 	system("pause");
 	return 0;
