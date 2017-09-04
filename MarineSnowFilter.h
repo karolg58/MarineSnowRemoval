@@ -247,8 +247,8 @@ protected:
 				const ComputationalPixelType & centerPixelVal = outliersVideo.get()->GetPixel(col, row, fIdx);
 				if (centerPixelVal >= minArea)
 				{
-					if (neighbourExists(col, row, fIdx - 1, centerPixelVal) == false 
-						&& neighbourExists(col, row, fIdx + 1, centerPixelVal) == false)
+					if (neighbourExists(col, row, fIdx - 1, centerPixelVal) == true 
+						|| neighbourExists(col, row, fIdx + 1, centerPixelVal) == true)
 					{
 						clearArea(col, row, fIdx);
 					}
@@ -263,19 +263,18 @@ protected:
 		const int & kRows = outliersVideo.get()->GetFrameAt(fIdx)->GetRow();
 		const int & kCols = outliersVideo.get()->GetFrameAt(fIdx)->GetCol();
 		const int & minArea = params.minAreaForSuspectOutliers;
-		const double & minRadiusCoeff = params.minRadiusForCheckingNeighbours;
-		const double & maxRadiusCoeff = params.maxRadiusForCheckingNeighbours;
+		const double & radiusCoeff = params.radiusForCheckingNeighbours;
 		const double & minAreaCoeff = params.minCoeffForCompareNeighboursAreas;
 		const double & maxAreaCoeff = params.maxCoeffForCompareNeighboursAreas;
 		const double radius = sqrt((double)expectedArea)/ (2 * M_PI);
-		const int startCol = col - radius * maxRadiusCoeff;
-		const int stopCol = col + radius * maxRadiusCoeff;
-		const int startRow = row - radius * maxRadiusCoeff;
-		const int stopRow = row + radius * maxRadiusCoeff;
+		const int startCol = col - radius * radiusCoeff;
+		const int stopCol = col + radius * radiusCoeff;
+		const int startRow = row - radius * radiusCoeff;
+		const int stopRow = row + radius * radiusCoeff;
 
 		if (stopCol >= kCols || startCol < 0 || stopRow >= kRows || startRow < 0)
 		{
-			return true;
+			return false;
 		}
 
 		for (int r = startRow; r <= stopRow; r++)
@@ -289,7 +288,7 @@ protected:
 						&& area < (ComputationalPixelType)(maxAreaCoeff * (double)expectedArea))
 					{
 						const int & dist = distance(col, row, c, r);
-						if (dist <= (int)(maxRadiusCoeff * radius) && dist >= (int)(minRadiusCoeff * radius))
+						if (dist <= (int)(radiusCoeff * radius))
 						{
 							return true;
 						}
@@ -297,7 +296,6 @@ protected:
 				}
 			}
 		}
-
 		return false;
 	}
 

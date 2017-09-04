@@ -16,8 +16,7 @@ public:
 	int availableSkippedPixelsForFindingArea = 5;
 
 	int minAreaForSuspectOutliers = 9;
-	double minRadiusForCheckingNeighbours = 8.0; //relative for blur size
-	double maxRadiusForCheckingNeighbours = 20.0; 
+	double radiusForCheckingNeighbours = 8.0; //relative for blur size 
 	double minCoeffForCompareNeighboursAreas = 0.5;
 	double maxCoeffForCompareNeighboursAreas = 1 / minCoeffForCompareNeighboursAreas;
 
@@ -31,8 +30,7 @@ public:
 			<< params.windowValueCoeff << endl
 			<< params.availableSkippedPixelsForFindingArea << endl
 			<< params.minAreaForSuspectOutliers << endl
-			<< params.minRadiusForCheckingNeighbours << endl
-			<< params.maxRadiusForCheckingNeighbours << endl
+			<< params.radiusForCheckingNeighbours << endl
 			<< params.minCoeffForCompareNeighboursAreas << endl
 			<< params.maxCoeffForCompareNeighboursAreas << endl;
 	}
