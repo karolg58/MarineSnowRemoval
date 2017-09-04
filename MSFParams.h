@@ -10,15 +10,15 @@ public:
 	int typeForTimeComparison = 1;	//0 -> max, 1 -> median, 2 -> average
 	bool channelsToCompare[3] = { true, true, true };//R, G, B
 	
-	int sizeWindowForTimeComparison = 3;//n -> window n x n
+	int sizeWindowForTimeComparison = 5;//n -> window n x n
 	double windowValueCoeff = 1.0;	
 
-	int availableSkippedPixelsForFindingArea = 3;
+	int availableSkippedPixelsForFindingArea = 5;
 
 	int minAreaForSuspectOutliers = 9;
-	double minRadiusForCheckingNeighbours = 6.0; //relative for blur size
-	double maxRadiusForCheckingNeighbours = 21.0; 
-	double minCoeffForCompareNeighboursAreas = 0.4;
+	double minRadiusForCheckingNeighbours = 8.0; //relative for blur size
+	double maxRadiusForCheckingNeighbours = 20.0; 
+	double minCoeffForCompareNeighboursAreas = 0.5;
 	double maxCoeffForCompareNeighboursAreas = 1 / minCoeffForCompareNeighboursAreas;
 
 	friend ostream & operator<< (ostream &output, const MSFparams params){

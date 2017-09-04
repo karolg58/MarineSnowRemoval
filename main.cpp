@@ -41,7 +41,7 @@ int main(void) {
 
 	for (params.sectorsRGBnumber = 9; params.sectorsRGBnumber <= 9; params.sectorsRGBnumber += 16)
 	{
-		for (params.RGBdistanceCoeff = 0.8; params.RGBdistanceCoeff <= 1.21; params.RGBdistanceCoeff += 0.2)
+		for (params.RGBdistanceCoeff = 0.6; params.RGBdistanceCoeff <= 1.01; params.RGBdistanceCoeff += 0.2)
 		{
 			for (params.RGBsectorsPercent = 80; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 20)
 			{
@@ -49,17 +49,17 @@ int main(void) {
 				long long int time = clock();
 				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 1; params.typeForTimeComparison++)
 				{
-					for (params.sizeWindowForTimeComparison = 1; params.sizeWindowForTimeComparison <= 3; params.sizeWindowForTimeComparison += 2)
+					for (params.sizeWindowForTimeComparison = 3; params.sizeWindowForTimeComparison <= 5; params.sizeWindowForTimeComparison += 2)
 					{
-						for (params.windowValueCoeff = 1.0; params.windowValueCoeff <= 1.21; params.windowValueCoeff += 0.1)
+						for (params.windowValueCoeff = 0.9; params.windowValueCoeff <= 1.11; params.windowValueCoeff += 0.1)
 						{
-							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 3; params.availableSkippedPixelsForFindingArea++)
+							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 5; params.availableSkippedPixelsForFindingArea += 2)
 							{
-								for (params.minRadiusForCheckingNeighbours = 6; params.minRadiusForCheckingNeighbours <= 12; params.minRadiusForCheckingNeighbours += 3)
+								for (params.minRadiusForCheckingNeighbours = 4; params.minRadiusForCheckingNeighbours <= 8; params.minRadiusForCheckingNeighbours += 2)
 								{
-									for (params.maxRadiusForCheckingNeighbours = 13; params.maxRadiusForCheckingNeighbours <= 21; params.maxRadiusForCheckingNeighbours += 4)
+									for (params.maxRadiusForCheckingNeighbours = 16; params.maxRadiusForCheckingNeighbours <= 25; params.maxRadiusForCheckingNeighbours += 4)
 									{
-										for (params.minCoeffForCompareNeighboursAreas = 0.4; params.minCoeffForCompareNeighboursAreas <= 0.71; params.minCoeffForCompareNeighboursAreas += 0.3)
+										for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.51; params.minCoeffForCompareNeighboursAreas += 0.2)
 										{
 											params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
 											filter(inputVideo, outputVideo, outputOutliersVideo, params);
@@ -70,6 +70,7 @@ int main(void) {
 											}
 											if (res <= minDiff) 
 											{
+												cout << "res= " << res << endl;
 												minDiff = res;
 												Q.push(params);
 												if (Q.size() > 1000)
