@@ -3,21 +3,21 @@
 
 class MSFparams {
 public:
-	int sectorsRGBnumber = 9;		//should be n^2, picture is divided into sectorsRGBnumber regions and within is calculated mean value of RGB distance
+	int sectorsRGBnumber = 25;		//should be n^2, picture is divided into sectorsRGBnumber regions and within is calculated mean value of RGB distance
 	double RGBdistanceCoeff = 0.8;	//pixel must has lower RGBdistance than RGBdistanceCoeff * meanRGBdistance from sector
 	int RGBsectorsPercent = 100;	//percent of sectors (contains pixel which is checked) with a positive results of RGBdistance condition, must exist to pass checkingRGBdistance
 	
 	int typeForTimeComparison = 1;	//0 -> max, 1 -> median, 2 -> average
 	bool channelsToCompare[3] = { true, true, true };//R, G, B
 	
-	int sizeWindowForTimeComparison = 5;//n -> window n x n
+	int sizeWindowForTimeComparison = 7;//n -> window n x n
 	double windowValueCoeff = 1.0;	
 
 	int availableSkippedPixelsForFindingArea = 5;
 
 	int minAreaForSuspectOutliers = 9;
-	double radiusForCheckingNeighbours = 8.0; //relative for blur size 
-	double minCoeffForCompareNeighboursAreas = 0.5;
+	double radiusForCheckingNeighbours = 6.0; //relative for blur size 
+	double minCoeffForCompareNeighboursAreas = 0.4;
 	double maxCoeffForCompareNeighboursAreas = 1 / minCoeffForCompareNeighboursAreas;
 
 	friend ostream & operator<< (ostream &output, const MSFparams params){
