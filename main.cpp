@@ -15,7 +15,7 @@
 int main(void) {
 	string startPath = "C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnowRemoval";
 	int startFrame = 1148;//real + 2
-	int numOfFrames = 24;//real - 4
+	int numOfFrames = 55;//real - 4
 	int endFrame = startFrame + numOfFrames;
 	MSFparams params;
 	std::auto_ptr<TVideoFor<Color_3x8_Pixel>> inputVideo(CreateAndOrphan_ColorVideo_FromFiles("C:\\Users\\Dell\\Desktop\\INZYNIERKA\\antarktyda_jpg\\frame", "jpg", startFrame, endFrame));
@@ -27,6 +27,7 @@ int main(void) {
 	MVAP userVideo(new MonochromeVideo(kCols, kRows, 0));
 	for (int i = startFrame + 2; i < endFrame - 2; i++)
 	{
+		//cout << "frame " << i << endl;
 		Polygons polygonsImage(kCols, kRows);
 		polygonsImage.loadMetaData(startPath + "\\MetaData\\frame" + to_string(i) + "_MetaData.txt");
 		MIAP userImage = polygonsImage.drawAndReturn();
@@ -49,15 +50,15 @@ int main(void) {
 				long long int time = clock();
 				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 1; params.typeForTimeComparison++)
 				{
-					for (params.sizeWindowForTimeComparison = 3; params.sizeWindowForTimeComparison <= 7; params.sizeWindowForTimeComparison += 2)
+					for (params.sizeWindowForTimeComparison = 5; params.sizeWindowForTimeComparison <= 9; params.sizeWindowForTimeComparison += 2)
 					{
 						for (params.windowValueCoeff = 0.9; params.windowValueCoeff <= 1.11; params.windowValueCoeff += 0.1)
 						{
 							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 3; params.availableSkippedPixelsForFindingArea += 1)
 							{
-								for (params.radiusForCheckingNeighbours = 2; params.radiusForCheckingNeighbours <= 8; params.radiusForCheckingNeighbours += 2)
+								for (params.radiusForCheckingNeighbours = 2; params.radiusForCheckingNeighbours <= 6; params.radiusForCheckingNeighbours += 2)
 								{
-									for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.61; params.minCoeffForCompareNeighboursAreas += 0.1)
+									for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.61; params.minCoeffForCompareNeighboursAreas += 0.15)
 									{
 										params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
 										filter(inputVideo, outputVideo, outputOutliersVideo, params);

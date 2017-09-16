@@ -70,6 +70,7 @@ public:
 		if (colsList.size() != rowsList.size()) return - 1;
 		for (int i = 0; i < colsList.size(); i++)
 		{
+			//cout << "row " << i << endl;
 			if (colsList[i].size() != rowsList[i].size()) return - 2;
 			int len = colsList[i].size();
 			int minCol = image.get()->GetCol();
