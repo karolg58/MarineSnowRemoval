@@ -29,8 +29,6 @@ public:
 
 			if (frameNum > 1) 
 			{
-				//start counting time for processing one frame
-				//long long int time = clock();
 
 				MeanRGBdistances(*inputVideo.get()->GetFrameAt(frameNum));
 
@@ -40,19 +38,12 @@ public:
 				//looking for brights areas at frame
 				FindBrights();
 
-				//printArea(1160, 100, 350, 100, fIdx);
-
-				findAreas();
+				FindAreas();
 
 				if (frameNum > 3)
 				{
-					checkNeighborhoods(fIdx - 1);
+					CheckNeighborhoods(fIdx - 1);
 				}
-
-				//printArea(1160, 100, 350, 100, fIdx);
-
-				//filtering time
-				//cout << "time = " << clock() - time << endl;
 			}
 
 		}

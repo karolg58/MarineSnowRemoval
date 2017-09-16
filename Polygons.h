@@ -19,6 +19,11 @@ public:
 		image = MIAP(new MonochromeImage(cols, rows, 0));
 	}
 
+	~Polygons() 
+	{
+		delete image.get();
+	}
+
 	void drawLine(int c1, int r1, int c2, int r2)
 	{
 		int lc = c2 - c1;

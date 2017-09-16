@@ -4,12 +4,6 @@
 #include <queue>
 #include "MSFParams.h"
 
-template <typename _InPixType, typename _ComputationalPixelType = long >
-class MarineSnowFilterForColor;
-
-template <typename _InPixType, typename _ComputationalPixelType = long >
-class MarineSnowFilterForMonochrome;
-
 template < typename _InPixType, typename _ComputationalPixelType = long >
 class MarineSnowFilter 
 {
@@ -120,7 +114,7 @@ protected:
 
 
 	//temporary function
-	void printArea(int startCol, int numCols, int startRow, int numRows, int fIdx)
+	void PrintArea(int startCol, int numCols, int startRow, int numRows, int fIdx)
 	{
 		for (int row = max(startRow, 0); row < min(outliersVideo.get()->GetFrameAt(fIdx)->GetRow(), startRow + numRows); row++)
 		{
@@ -136,7 +130,7 @@ protected:
 	}
 
 	//counting adjacent bright pixels to find bright areas
-	void findAreas() 
+	void FindAreas() 
 	{
 		const int & availableSkipped = params.availableSkippedPixelsForFindingArea;
 		const int & minArea = params.minAreaForSuspectOutliers;
@@ -154,15 +148,15 @@ protected:
 
 				if (visited == false && suspected == true) 
 				{
-					ComputationalPixelType area = findSingleArea(visitedFrame, col, row, availableSkipped, meanCol, meanRow);
+					ComputationalPixelType area = FindSingleArea(visitedFrame, col, row, availableSkipped, meanCol, meanRow);
 					if (outliersVideo.get()->GetPixel(meanCol, meanRow, fIdx) == 1 && visitedFrame.get()->GetPixel(meanCol, meanRow))
 					{
-						confirmArea(meanCol, meanRow, fIdx);
+						ConfirmArea(meanCol, meanRow, fIdx);
 						outliersVideo.get()->SetPixel(meanCol, meanRow, fIdx, area);
 					}
 					else//shape is not like marine snow
 					{
-						clearArea(col, row, fIdx);
+						ClearArea(col, row, fIdx);
 					}
 				}
 			}
@@ -170,7 +164,7 @@ protected:
 	}
 
 	//loking for single bright area which is suspected to be outliers region
-	ComputationalPixelType findSingleArea(BoolImageAP & visitedFrame, const int & col, const int & row, const int & availableSkipped, int & meanCol, int & meanRow)
+	ComputationalPixelType FindSingleArea(BoolImageAP & visitedFrame, const int & col, const int & row, const int & availableSkipped, int & meanCol, int & meanRow)
 	{
 		std::queue<int> Q;
 		Q.push(col);
@@ -197,7 +191,7 @@ protected:
 					sum += 1;
 					if (suspected)
 					{
-						addAdjacentPixelsToQueue(Q, c, r, 0);
+						AddAdjacentPixelsToQueue(Q, c, r, 0);
 						if (c > maxCol) maxCol = c;
 						if (c < minCol) minCol = c;
 						if (r > maxRow) maxRow = r;
@@ -205,7 +199,7 @@ protected:
 					}
 					else
 					{
-						addAdjacentPixelsToQueue(Q, c, r, skipped + 1);
+						AddAdjacentPixelsToQueue(Q, c, r, skipped + 1);
 						outliersVideo.get()->SetPixel(c, r, fIdx, 1);
 					}
 				}
@@ -217,7 +211,7 @@ protected:
 	}
 
 	// add pixels neighbours if they are at image size
-	inline void addAdjacentPixelsToQueue(std::queue<int> & Q, const int & col, const int & row, const int & skipped)
+	inline void AddAdjacentPixelsToQueue(std::queue<int> & Q, const int & col, const int & row, const int & skipped)
 	{
 		for (int i = 0; i < 9; i++)
 		{
@@ -237,7 +231,7 @@ protected:
 	}
 
 	//here will be function to checking neighbourhoods
-	void checkNeighborhoods(const int & fIdx) 
+	void CheckNeighborhoods(const int & fIdx) 
 	{
 		const int & minArea = params.minAreaForSuspectOutliers;
 		for (int row = 0; row < outliersVideo.get()->GetFrameAt(fIdx)->GetRow(); row++)
@@ -247,10 +241,10 @@ protected:
 				const ComputationalPixelType & centerPixelVal = outliersVideo.get()->GetPixel(col, row, fIdx);
 				if (centerPixelVal >= minArea)
 				{
-					if (neighbourExists(col, row, fIdx - 1, centerPixelVal) == true 
-						|| neighbourExists(col, row, fIdx + 1, centerPixelVal) == true)
+					if (NeighbourExists(col, row, fIdx - 1, centerPixelVal) == true 
+						|| NeighbourExists(col, row, fIdx + 1, centerPixelVal) == true)
 					{
-						clearArea(col, row, fIdx);
+						ClearArea(col, row, fIdx);
 					}
 				}
 			}
@@ -258,7 +252,7 @@ protected:
 	}
 
 	//here will be function to checking neighbourhood
-	bool neighbourExists(const int & col, const int & row, const int & fIdx, const ComputationalPixelType & expectedArea)
+	bool NeighbourExists(const int & col, const int & row, const int & fIdx, const ComputationalPixelType & expectedArea)
 	{
 		const int & kRows = outliersVideo.get()->GetFrameAt(fIdx)->GetRow();
 		const int & kCols = outliersVideo.get()->GetFrameAt(fIdx)->GetCol();
@@ -287,7 +281,7 @@ protected:
 					if (area > (ComputationalPixelType)(minAreaCoeff * (double)expectedArea) 
 						&& area < (ComputationalPixelType)(maxAreaCoeff * (double)expectedArea))
 					{
-						const int & dist = distance(col, row, c, r);
+						const int & dist = Distance(col, row, c, r);
 						if (dist <= (int)(radiusCoeff * radius))
 						{
 							return true;
@@ -300,14 +294,14 @@ protected:
 	}
 
 	//euclidean distance
-	inline double distance(const int & col, const int & row, const int & c, const int & r)
+	inline double Distance(const int & col, const int & row, const int & c, const int & r)
 	{
 		return sqrt(pow((col - c), 2) + pow((row - r), 2));
 	}
 
 	//area is not an outliers
 	//tu uwaga na rogale
-	void clearArea(const int & col, const int & row, const int & fIdx)
+	void ClearArea(const int & col, const int & row, const int & fIdx)
 	{
 		std::queue<int> Q;
 		Q.push(col);
@@ -322,12 +316,12 @@ protected:
 			if (outliersVideo.get()->GetPixel(c, r, fIdx) > 0)
 			{
 				outliersVideo.get()->SetPixel(c, r, fIdx, 0);
-				addAdjacentPixelsToQueue(Q, c, r, skipped + 1);
+				AddAdjacentPixelsToQueue(Q, c, r, skipped + 1);
 			}
 		}
 	}
 
-	void confirmArea(const int & col, const int & row, const int & fIdx)
+	void ConfirmArea(const int & col, const int & row, const int & fIdx)
 	{
 		std::queue<int> Q;
 		Q.push(col);
@@ -342,13 +336,11 @@ protected:
 			if (outliersVideo.get()->GetPixel(c, r, fIdx) == 1)
 			{
 				outliersVideo.get()->SetPixel(c, r, fIdx, 2);
-				addAdjacentPixelsToQueue(Q, c, r, skipped + 1);
+				AddAdjacentPixelsToQueue(Q, c, r, skipped + 1);
 			}
 		}
 	}
 
 };
 
-#include "MarineSnowFilterForColor.h"
-#include "MarineSnowFilterForMonochrome.h"
 #endif

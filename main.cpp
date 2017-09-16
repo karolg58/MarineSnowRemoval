@@ -8,6 +8,7 @@
 #include <fstream>
 
 #include "..\..\MarineSnowRemoval\MarineSnowFilter.h"
+#include "..\..\MarineSnowRemoval\MarineSnowFilterForColor.h"
 #include "..\..\MarineSnowRemoval\Polygons.h"
 #include "..\..\MarineSnowRemoval\Comparator.h"
 
