@@ -18,7 +18,7 @@ public:
 
 	virtual ~MarineSnowFilterForColor() {}
 
-	//Main method, overload operator ()inputVideo.get()->
+	//Main method, overload operator ()
 	virtual bool operator()(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params)
 	{
 		init(inVideo, outVideo, outOutliersVideo, params);
@@ -48,12 +48,105 @@ public:
 
 		}
 
+		for (int frameNum = 1; frameNum < inputVideo.get()->GetNumOfFrames() - 1; frameNum++)
+		{
+			ReplaceOutliers(frameNum);
+		}
+
 		outVideo = this->outputVideo;
 		outOutliersVideo = this->outliersVideo;
 		inVideo = this->inputVideo;
 
 		return true;
 	}
+
+	//temporary methor for tests
+	long WithCompare(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params, MVAP & userVideo)
+	{
+		init(inVideo, outVideo, outOutliersVideo, params);
+
+		for (int frameNum = 0; frameNum < inputVideo.get()->GetNumOfFrames(); frameNum++)
+		{
+			this->fIdx = frameNum - 1;
+
+			if (frameNum > 1)
+			{
+
+				MeanRGBdistances(*inputVideo.get()->GetFrameAt(frameNum));
+
+				//for color frames - only pixels which hava RGBdistance low enough could be outliers
+				CheckRGBdistance();
+
+				//looking for brights areas at frame
+				FindBrights();
+
+				FindAreas();
+
+				if (frameNum > 3)
+				{
+					CheckNeighborhoods(fIdx - 1);
+				}
+			}
+
+		}
+
+		//for (int frameNum = 1; frameNum < inputVideo.get()->GetNumOfFrames() - 1; frameNum++)
+		//{
+		//	ReplaceOutliers(frameNum);
+		//}
+
+		long result = Compare(userVideo);
+
+		outVideo = this->outputVideo;
+		outOutliersVideo = this->outliersVideo;
+		inVideo = this->inputVideo;
+
+		return result;
+	}
+
+	//also temporary method for tests
+	long Compare(MVAP & userVideo)
+	{
+		int framesNumber = min(min(userVideo.get()->GetNumOfFrames(), inputVideo.get()->GetNumOfFrames()), outliersVideo.get()->GetNumOfFrames());
+		const int & kCols = userVideo.get()->GetFrameAt(0)->GetCol();
+		const int & kRows = userVideo.get()->GetFrameAt(0)->GetRow();
+		if (outliersVideo.get()->GetFrameAt(0)->GetCol() != kCols)  return -1;
+		if (outliersVideo.get()->GetFrameAt(0)->GetRow() != kRows)  return -1;
+		long counter = 0;
+		for (int f = 1; f < framesNumber - 1; f++)
+		{
+			for (int row = 0; row < kRows; row++)
+			{
+				for (int col = 0; col < kCols; col++)
+				{
+					unsigned char userPixel = userVideo.get()->GetPixel(col, row, f);
+					unsigned char filterPixel = outliersVideo.get()->GetPixel(col, row, f);
+					if (userPixel == 0 && filterPixel != 0)
+					{
+						counter += WeightOfReplacement(col, row, f)/2;
+					}
+					else if (userPixel != 0 && filterPixel == 0) {
+						counter += WeightOfReplacement(col, row, f);
+					}
+				}
+			}
+		}
+		return counter;
+	}
+
+	//also temporary method for tests
+	inline int WeightOfReplacement(const int & c, const int & r, const int & fIdx)
+	{
+		int sum = 0;
+		InPixType actualPixel = inputVideo.get()->GetPixel(c, r, fIdx);
+		InPixType proposedPixel = FindPixelToReplace(c, r, fIdx);
+		for (int i = 0; i < 3; i++)
+		{
+			sum += abs(actualPixel[i] - proposedPixel[i]);
+		}
+		return sum;
+	}
+
 
 protected:
 	//initialize filter
@@ -224,6 +317,21 @@ protected:
 		}
 		//return average
 		return sum;
+	}
+
+	//looking for pixel which will be replaced with outlier
+	virtual InPixType FindPixelToReplace(const int & c, const int & r, const int & fIdx)
+	{
+		InPixType prevFramePixel = MedFromWindow(c, r, fIdx - 1);
+		InPixType actualFramePixel = MedFromWindow(c, r, fIdx);
+		InPixType nextFramePixel = MedFromWindow(c, r, fIdx + 1);
+
+		InPixType resultPixel;
+		resultPixel[0] = min(min(prevFramePixel[0], actualFramePixel[0]), nextFramePixel[0]);
+		resultPixel[1] = min(min(prevFramePixel[1], actualFramePixel[1]), nextFramePixel[1]);
+		resultPixel[2] = min(min(prevFramePixel[2], actualFramePixel[2]), nextFramePixel[2]);
+
+		return resultPixel;
 	}
 
 	//Calculate RGB distance

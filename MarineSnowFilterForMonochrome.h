@@ -160,6 +160,16 @@ protected:
 		return sum;
 	}
 
+	//looking for pixel which will be replaced with outlier
+	virtual InPixType FindPixelToReplace(const int & c, const int & r, const int & fIdx) 
+	{
+		InPixType prevFramePixel = MedFromWindow(c, r, fIdx - 1);
+		InPixType actualFramePixel = MedFromWindow(c, r, fIdx);
+		InPixType nextFramePixel = MedFromWindow(c, r, fIdx + 1);
+
+		return min(min(prevFramePixel, actualFramePixel), nextFramePixel);
+	}
+
 	//function to compare pixxels in connection with choosen parameters
 	inline virtual bool Smaller(const InPixType & Lpixel, const InPixType & Rpixel)
 	{

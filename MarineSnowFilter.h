@@ -109,6 +109,9 @@ protected:
 	//calculate average value from window
 	virtual InPixType AverageFromWindow(const int & c, const int & r, const int & fIdx) = 0;
 
+	//looking for pixel which will be replaced with outlier
+	virtual InPixType FindPixelToReplace(const int & c, const int & r, const int & fIdx) = 0;
+
 	//function to compare pixxels in connection with choosen parameters
 	inline virtual bool Smaller(const InPixType & Lpixel, const InPixType & Rpixel) = 0;
 
@@ -337,6 +340,23 @@ protected:
 			{
 				outliersVideo.get()->SetPixel(c, r, fIdx, 2);
 				AddAdjacentPixelsToQueue(Q, c, r, skipped + 1);
+			}
+		}
+	}
+
+	void ReplaceOutliers(int fIdx) 
+	{
+		const int & kRows = outliersVideo.get()->GetFrameAt(fIdx)->GetRow();
+		const int & kCols = outliersVideo.get()->GetFrameAt(fIdx)->GetCol();
+		for (int row = 0; row < kRows; row++)
+		{
+			for (int col = 0; col < kCols; col++)
+			{
+				if (outliersVideo.get()->GetPixel(col, row, fIdx) > 0)
+				{
+					InPixType newPixel = FindPixelToReplace(col, row, fIdx);
+					outputVideo.get()->SetPixel(col, row, fIdx, newPixel);
+				}
 			}
 		}
 	}

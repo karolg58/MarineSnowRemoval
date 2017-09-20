@@ -37,7 +37,6 @@ int main(void) {
 	}
 
 	MarineSnowFilterForColor<Color_3x8_Pixel> filter;
-	Comparator compare;
 	queue<MSFparams> Q;
 	long minDiff = MAXLONG;
 
@@ -51,7 +50,7 @@ int main(void) {
 				long long int time = clock();
 				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 1; params.typeForTimeComparison++)
 				{
-					for (params.sizeWindowForTimeComparison = 5; params.sizeWindowForTimeComparison <= 9; params.sizeWindowForTimeComparison += 2)
+					for (params.sizeWindowForTimeComparison = 5; params.sizeWindowForTimeComparison <= 7; params.sizeWindowForTimeComparison += 2)
 					{
 						for (params.windowValueCoeff = 0.9; params.windowValueCoeff <= 1.11; params.windowValueCoeff += 0.1)
 						{
@@ -62,12 +61,7 @@ int main(void) {
 									for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.61; params.minCoeffForCompareNeighboursAreas += 0.15)
 									{
 										params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
-										filter(inputVideo, outputVideo, outputOutliersVideo, params);
-										long res = 0;
-										for (int i = 0; i < numOfFrames - 4; i++)
-										{
-											res += (long)compare(*(userVideo.get()->GetFrameAt(i)), *(outputOutliersVideo.get()->GetFrameAt(i + 2)));
-										}
+										long res = filter.WithCompare(inputVideo, outputVideo, outputOutliersVideo, params, userVideo);
 										if (res <= minDiff)
 										{
 											cout << "res= " << res << endl;
