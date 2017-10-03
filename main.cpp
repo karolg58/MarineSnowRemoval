@@ -39,10 +39,11 @@ int main(void) {
 	MarineSnowFilterForColor<Color_3x8_Pixel> filter;
 	queue<MSFparams> Q;
 	long minDiff = MAXLONG;
+	ofstream myfile(startPath + "\\params_output.txt");
 
-	for (params.sectorsRGBnumber = 25; params.sectorsRGBnumber <= 25; params.sectorsRGBnumber += 16)
+	for (params.sectorsRGBnumber = 9; params.sectorsRGBnumber <= 9; params.sectorsRGBnumber += 16)
 	{
-		for (params.RGBdistanceCoeff = 0.6; params.RGBdistanceCoeff <= 1.01; params.RGBdistanceCoeff += 0.2)
+		for (params.RGBdistanceCoeff = 0.8; params.RGBdistanceCoeff <= 1.21; params.RGBdistanceCoeff += 0.2)
 		{
 			for (params.RGBsectorsPercent = 80; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 20)
 			{
@@ -50,21 +51,24 @@ int main(void) {
 				long long int time = clock();
 				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 1; params.typeForTimeComparison++)
 				{
-					for (params.sizeWindowForTimeComparison = 5; params.sizeWindowForTimeComparison <= 7; params.sizeWindowForTimeComparison += 2)
+					for (params.sizeWindowForTimeComparison = 3; params.sizeWindowForTimeComparison <= 7; params.sizeWindowForTimeComparison += 2)
 					{
-						for (params.windowValueCoeff = 0.9; params.windowValueCoeff <= 1.11; params.windowValueCoeff += 0.1)
+						for (params.windowValueCoeff = 0.7; params.windowValueCoeff <= 1.31; params.windowValueCoeff += 0.2)
 						{
 							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 3; params.availableSkippedPixelsForFindingArea += 1)
 							{
-								for (params.radiusForCheckingNeighbours = 2; params.radiusForCheckingNeighbours <= 6; params.radiusForCheckingNeighbours += 2)
+								for (params.radiusForCheckingNeighbours = 6; params.radiusForCheckingNeighbours <= 16; params.radiusForCheckingNeighbours += 2)
 								{
-									for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.61; params.minCoeffForCompareNeighboursAreas += 0.15)
+									for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.76; params.minCoeffForCompareNeighboursAreas += 0.15)
 									{
 										params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
 										long res = filter.WithCompare(inputVideo, outputVideo, outputOutliersVideo, params, userVideo);
 										if (res <= minDiff)
 										{
 											cout << "res= " << res << endl;
+											cout << "params = " << endl << params << endl;
+											myfile << "res= " << res << endl;
+											myfile << "params = " << endl << params << endl;
 											minDiff = res;
 											Q.push(params);
 											if (Q.size() > 1000)
@@ -107,7 +111,6 @@ int main(void) {
 	}
 
 	cout << "endParams:" << endl << params << endl;
-	ofstream myfile(startPath + "\\params_output.txt");
 	if (myfile.is_open())
 	{
 		while (!Q.empty())
@@ -118,6 +121,7 @@ int main(void) {
 		myfile.close();
 	}
 	else cout << "Unable to open file";
+	myfile.close();
 
 	system("pause");
 	return 0;

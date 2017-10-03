@@ -123,10 +123,10 @@ public:
 					unsigned char filterPixel = outliersVideo.get()->GetPixel(col, row, f);
 					if (userPixel == 0 && filterPixel != 0)
 					{
-						counter += WeightOfReplacement(col, row, f)/2;
+						counter += (WeightOfReplacement(col, row, f)/5);
 					}
 					else if (userPixel != 0 && filterPixel == 0) {
-						counter += WeightOfReplacement(col, row, f);
+						counter += (WeightOfReplacement(col, row, f));
 					}
 				}
 			}
@@ -144,6 +144,8 @@ public:
 		{
 			sum += abs(actualPixel[i] - proposedPixel[i]);
 		}
+		sum -= 15;
+		if (sum < 0) sum = 0;
 		return sum;
 	}
 
