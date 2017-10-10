@@ -61,7 +61,7 @@ public:
 	}
 
 	//temporary methor for tests
-	long WithCompare(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params, MVAP & userVideo)
+	double WithCompare(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params, MVAP & userVideo)
 	{
 		init(inVideo, outVideo, outOutliersVideo, params);
 
@@ -95,7 +95,7 @@ public:
 		//	ReplaceOutliers(frameNum);
 		//}
 
-		long result = Compare(userVideo);
+		double result = Compare(userVideo);
 
 		outVideo = this->outputVideo;
 		outOutliersVideo = this->outliersVideo;
@@ -105,33 +105,75 @@ public:
 	}
 
 	//also temporary method for tests
-	long Compare(MVAP & userVideo)
+	double Compare(MVAP & userVideo)
 	{
 		int framesNumber = min(min(userVideo.get()->GetNumOfFrames(), inputVideo.get()->GetNumOfFrames()), outliersVideo.get()->GetNumOfFrames());
 		const int & kCols = userVideo.get()->GetFrameAt(0)->GetCol();
 		const int & kRows = userVideo.get()->GetFrameAt(0)->GetRow();
 		if (outliersVideo.get()->GetFrameAt(0)->GetCol() != kCols)  return -1;
 		if (outliersVideo.get()->GetFrameAt(0)->GetRow() != kRows)  return -1;
-		long counter = 0;
-		for (int f = 1; f < framesNumber - 1; f++)
+		long TP = 0, TN = 0, FP = 0, FN = 0;
+		for (int f = 2; f < framesNumber - 2; f++)
 		{
 			for (int row = 0; row < kRows; row++)
 			{
 				for (int col = 0; col < kCols; col++)
 				{
-					unsigned char userPixel = userVideo.get()->GetPixel(col, row, f);
+					unsigned char userPixel = userVideo.get()->GetPixel(col, row, f - 2);
 					unsigned char filterPixel = outliersVideo.get()->GetPixel(col, row, f);
-					if (userPixel == 0 && filterPixel != 0)
+					if (userPixel == 0)
 					{
-						counter += (WeightOfReplacement(col, row, f)/5);
+						if (filterPixel == 0)
+						{
+							TN++;
+						}
+						else
+						{
+							FP++;
+						}
 					}
-					else if (userPixel != 0 && filterPixel == 0) {
-						counter += (WeightOfReplacement(col, row, f));
+					else
+					{
+						if (filterPixel == 0)
+						{
+							FN++;
+						}
+						else
+						{
+							TP++;
+						}
 					}
 				}
 			}
 		}
-		return counter;
+
+		cout << TN << " " << FP << " " << FN << " " << TP << endl;
+
+		if (TP + FN == 0)
+		{
+			cout << "Attempt to divide by zero TP + FN" << endl;
+			return -1;
+		}
+		double R = (double)TP / (double)(TP + FN);
+		cout << R << endl;
+
+		if (TP + FP == 0)
+		{
+			cout << "Attempt to divide by zero TP + FP" << endl;
+			return -1;
+		}
+		double P = (double)TP / (double)(TP + FP);
+		cout << P << endl;
+
+		if (((double)R / 2 + (double)P / 2) == 0)
+		{
+			cout << "Attempt to divide by zero R / 2 + P / 2" << endl;
+			return -1;
+		}
+		double F = P * R / (R / 2 + P / 2);
+		cout << F << endl;
+
+		return F;
 	}
 
 	//also temporary method for tests

@@ -16,7 +16,7 @@
 int main(void) {
 	string startPath = "C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnowRemoval";
 	int startFrame = 1148;//real + 2
-	int numOfFrames = 55;//real - 4
+	int numOfFrames = 50;//real - 4
 	int endFrame = startFrame + numOfFrames;
 	MSFparams params;
 	std::auto_ptr<TVideoFor<Color_3x8_Pixel>> inputVideo(CreateAndOrphan_ColorVideo_FromFiles("C:\\Users\\Dell\\Desktop\\INZYNIERKA\\antarktyda_jpg\\frame", "jpg", startFrame, endFrame));
@@ -37,44 +37,40 @@ int main(void) {
 	}
 
 	MarineSnowFilterForColor<Color_3x8_Pixel> filter;
-	queue<MSFparams> Q;
-	long minDiff = MAXLONG;
+	MSFparams bestParams = params;
+	double bestResult = 0.0;
 	ofstream myfile(startPath + "\\params_output.txt");
 
 	for (params.sectorsRGBnumber = 9; params.sectorsRGBnumber <= 9; params.sectorsRGBnumber += 16)
 	{
 		for (params.RGBdistanceCoeff = 0.8; params.RGBdistanceCoeff <= 1.21; params.RGBdistanceCoeff += 0.2)
 		{
-			for (params.RGBsectorsPercent = 80; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 20)
+			for (params.RGBsectorsPercent = 50; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 50)
 			{
 				//6x
 				long long int time = clock();
-				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 1; params.typeForTimeComparison++)
+				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 0; params.typeForTimeComparison++)
 				{
-					for (params.sizeWindowForTimeComparison = 3; params.sizeWindowForTimeComparison <= 7; params.sizeWindowForTimeComparison += 2)
+					for (params.sizeWindowForTimeComparison = 1; params.sizeWindowForTimeComparison <= 5; params.sizeWindowForTimeComparison += 2)
 					{
-						for (params.windowValueCoeff = 0.7; params.windowValueCoeff <= 1.31; params.windowValueCoeff += 0.2)
+						for (params.windowValueCoeff = 0.7; params.windowValueCoeff <= 1.31; params.windowValueCoeff += 0.3)
 						{
-							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 3; params.availableSkippedPixelsForFindingArea += 1)
+							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 3; params.availableSkippedPixelsForFindingArea += 2)
 							{
-								for (params.radiusForCheckingNeighbours = 6; params.radiusForCheckingNeighbours <= 16; params.radiusForCheckingNeighbours += 2)
+								for (params.radiusForCheckingNeighbours = 5; params.radiusForCheckingNeighbours <= 15; params.radiusForCheckingNeighbours += 5)
 								{
 									for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.76; params.minCoeffForCompareNeighboursAreas += 0.15)
 									{
 										params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
-										long res = filter.WithCompare(inputVideo, outputVideo, outputOutliersVideo, params, userVideo);
-										if (res <= minDiff)
+										double res = filter.WithCompare(inputVideo, outputVideo, outputOutliersVideo, params, userVideo);
+										if (res > bestResult)
 										{
 											cout << "res= " << res << endl;
 											cout << "params = " << endl << params << endl;
 											myfile << "res= " << res << endl;
 											myfile << "params = " << endl << params << endl;
-											minDiff = res;
-											Q.push(params);
-											if (Q.size() > 1000)
-											{
-												Q.pop();
-											}
+											bestResult = res;
+											bestParams = params;
 										}
 									}
 								}
@@ -86,10 +82,13 @@ int main(void) {
 			}
 		}
 	}
+	
+	myfile.close();
 
-	cout << minDiff << endl;
-	params = Q.back();
-	filter(inputVideo, outputVideo, outputOutliersVideo, params);
+	cout << "endParams:" << endl << bestParams << endl;
+
+	filter(inputVideo, outputVideo, outputOutliersVideo, bestParams);
+	double res = filter.WithCompare(inputVideo, outputVideo, outputOutliersVideo, bestParams, userVideo);
 
 
 	//Save_JPEG_Frames
@@ -109,19 +108,6 @@ int main(void) {
 
 		Save_JPEG_Image((MonochromeImage)*outputOutliersVideo.get()->GetFrameAt(i), startPath + "\\OutputBoleanVideo\\outBool" + to_string(startFrame + i) + ".jpg");
 	}
-
-	cout << "endParams:" << endl << params << endl;
-	if (myfile.is_open())
-	{
-		while (!Q.empty())
-		{
-			myfile << Q.front() << endl << endl;
-			Q.pop();
-		}
-		myfile.close();
-	}
-	else cout << "Unable to open file";
-	myfile.close();
 
 	system("pause");
 	return 0;
