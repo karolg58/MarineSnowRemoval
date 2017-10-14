@@ -22,17 +22,17 @@ public:
 
 	friend ostream & operator<< (ostream &output, const MSFparams params){
 		return output
-			<< params.sectorsRGBnumber << endl
-			<< params.RGBdistanceCoeff << endl
-			<< params.RGBsectorsPercent << endl
-			<< params.typeForTimeComparison << endl
-			<< params.sizeWindowForTimeComparison << endl
-			<< params.windowValueCoeff << endl
-			<< params.availableSkippedPixelsForFindingArea << endl
-			<< params.minAreaForSuspectOutliers << endl
-			<< params.radiusForCheckingNeighbours << endl
-			<< params.minCoeffForCompareNeighboursAreas << endl
-			<< params.maxCoeffForCompareNeighboursAreas << endl;
+			<< params.sectorsRGBnumber << ","
+			<< params.RGBdistanceCoeff << ","
+			<< params.RGBsectorsPercent << ","
+			<< params.typeForTimeComparison << ","
+			<< params.sizeWindowForTimeComparison << ","
+			<< params.windowValueCoeff << ","
+			<< params.availableSkippedPixelsForFindingArea << ","
+			<< params.minAreaForSuspectOutliers << ","
+			<< params.radiusForCheckingNeighbours << ","
+			<< params.minCoeffForCompareNeighboursAreas << ","
+			<< params.maxCoeffForCompareNeighboursAreas;
 	}
 };
 

@@ -61,7 +61,7 @@ public:
 	}
 
 	//temporary methor for tests
-	double WithCompare(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params, MVAP & userVideo)
+	double WithCompare(InVideoAP & inVideo, OutVideoAP & outVideo, OutliersVideoAP & outOutliersVideo, const MSFparams & params, MVAP & userVideo, ofstream & testData)
 	{
 		init(inVideo, outVideo, outOutliersVideo, params);
 
@@ -95,7 +95,7 @@ public:
 		//	ReplaceOutliers(frameNum);
 		//}
 
-		double result = Compare(userVideo);
+		double result = Compare(userVideo, testData);
 
 		outVideo = this->outputVideo;
 		outOutliersVideo = this->outliersVideo;
@@ -105,7 +105,7 @@ public:
 	}
 
 	//also temporary method for tests
-	double Compare(MVAP & userVideo)
+	double Compare(MVAP & userVideo, ofstream & testData)
 	{
 		int framesNumber = min(min(userVideo.get()->GetNumOfFrames(), inputVideo.get()->GetNumOfFrames()), outliersVideo.get()->GetNumOfFrames());
 		const int & kCols = userVideo.get()->GetFrameAt(0)->GetCol();
@@ -125,29 +125,29 @@ public:
 					{
 						if (filterPixel == 0)
 						{
-							TN++;
+							TN += WeightOfReplacement(col, row, f, 10);
 						}
 						else
 						{
-							FP++;
+							FP += WeightOfReplacement(col, row, f, 10);
 						}
 					}
 					else
 					{
 						if (filterPixel == 0)
 						{
-							FN++;
+							FN += WeightOfReplacement(col, row, f, 10);
 						}
 						else
 						{
-							TP++;
+							TP += WeightOfReplacement(col, row, f, 10);
 						}
 					}
 				}
 			}
 		}
 
-		cout << TN << " " << FP << " " << FN << " " << TP << endl;
+		cout << TN << "," << FP << "," << FN << "," << TP << endl;
 
 		if (TP + FN == 0)
 		{
@@ -173,21 +173,28 @@ public:
 		double F = P * R / (R / 2 + P / 2);
 		cout << F << endl;
 
+		testData << params << endl;
+		testData << TN << "," << FP << "," << FN << "," << TP << endl;
+		testData << R << "," << P << "," << F << endl;
+
 		return F;
 	}
 
 	//also temporary method for tests
-	inline int WeightOfReplacement(const int & c, const int & r, const int & fIdx)
+	inline int WeightOfReplacement(const int & c, const int & r, const int & fIdx, int threshold)
 	{
 		int sum = 0;
 		InPixType actualPixel = inputVideo.get()->GetPixel(c, r, fIdx);
 		InPixType proposedPixel = FindPixelToReplace(c, r, fIdx);
 		for (int i = 0; i < 3; i++)
 		{
-			sum += abs(actualPixel[i] - proposedPixel[i]);
+			int val = (int)actualPixel[i] - (int)proposedPixel[i];
+			if (val < -threshold || val > threshold)
+			{
+				sum += val;
+			}
 		}
-		sum -= 15;
-		if (sum < 0) sum = 0;
+		sum = abs(sum);
 		return sum;
 	}
 

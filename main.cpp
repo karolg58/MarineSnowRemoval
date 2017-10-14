@@ -15,8 +15,8 @@
 
 int main(void) {
 	string startPath = "C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject\\MarineSnowRemoval";
-	int startFrame = 1148;//real + 2
-	int numOfFrames = 50;//real - 4
+	int startFrame = 1168;//real + 2
+	int numOfFrames = 30;//real - 4
 	int endFrame = startFrame + numOfFrames;
 	MSFparams params;
 	std::auto_ptr<TVideoFor<Color_3x8_Pixel>> inputVideo(CreateAndOrphan_ColorVideo_FromFiles("C:\\Users\\Dell\\Desktop\\INZYNIERKA\\antarktyda_jpg\\frame", "jpg", startFrame, endFrame));
@@ -40,18 +40,19 @@ int main(void) {
 	MSFparams bestParams = params;
 	double bestResult = 0.0;
 	ofstream myfile(startPath + "\\params_output.txt");
+	ofstream testData(startPath + "\\testData.txt");
 
-	for (params.sectorsRGBnumber = 9; params.sectorsRGBnumber <= 9; params.sectorsRGBnumber += 16)
+	for (params.sectorsRGBnumber = 25; params.sectorsRGBnumber <= 25; params.sectorsRGBnumber += 16)
 	{
 		for (params.RGBdistanceCoeff = 0.8; params.RGBdistanceCoeff <= 1.21; params.RGBdistanceCoeff += 0.2)
 		{
-			for (params.RGBsectorsPercent = 50; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 50)
+			for (params.RGBsectorsPercent = 100; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 50)
 			{
 				//6x
 				long long int time = clock();
-				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 0; params.typeForTimeComparison++)
+				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 1; params.typeForTimeComparison++)
 				{
-					for (params.sizeWindowForTimeComparison = 1; params.sizeWindowForTimeComparison <= 5; params.sizeWindowForTimeComparison += 2)
+					for (params.sizeWindowForTimeComparison = 1; params.sizeWindowForTimeComparison <= 3; params.sizeWindowForTimeComparison += 2)
 					{
 						for (params.windowValueCoeff = 0.7; params.windowValueCoeff <= 1.31; params.windowValueCoeff += 0.3)
 						{
@@ -62,7 +63,7 @@ int main(void) {
 									for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.76; params.minCoeffForCompareNeighboursAreas += 0.15)
 									{
 										params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
-										double res = filter.WithCompare(inputVideo, outputVideo, outputOutliersVideo, params, userVideo);
+										double res = filter.WithCompare(inputVideo, outputVideo, outputOutliersVideo, params, userVideo, testData);
 										if (res > bestResult)
 										{
 											cout << "res= " << res << endl;
@@ -79,17 +80,17 @@ int main(void) {
 					}
 				}
 				cout << "time = " << (clock() - time)/1000 << endl;//6x
+				myfile << "time = " << (clock() - time) / 1000 << endl;//6x
 			}
 		}
 	}
 	
 	myfile.close();
+	testData.close();
 
 	cout << "endParams:" << endl << bestParams << endl;
 
 	filter(inputVideo, outputVideo, outputOutliersVideo, bestParams);
-	double res = filter.WithCompare(inputVideo, outputVideo, outputOutliersVideo, bestParams, userVideo);
-
 
 	//Save_JPEG_Frames
 	for (int i = 0; i < outputVideo.get()->GetNumOfFrames(); i++) 
