@@ -44,23 +44,23 @@ int main(void) {
 
 	for (params.sectorsRGBnumber = 25; params.sectorsRGBnumber <= 25; params.sectorsRGBnumber += 16)
 	{
-		for (params.RGBdistanceCoeff = 0.8; params.RGBdistanceCoeff <= 1.21; params.RGBdistanceCoeff += 0.2)
+		for (params.RGBdistanceCoeff = 01.0; params.RGBdistanceCoeff <= 1.01; params.RGBdistanceCoeff += 0.2)
 		{
 			for (params.RGBsectorsPercent = 100; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 50)
 			{
 				//6x
 				long long int time = clock();
-				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 1; params.typeForTimeComparison++)
+				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 0; params.typeForTimeComparison++)
 				{
-					for (params.sizeWindowForTimeComparison = 1; params.sizeWindowForTimeComparison <= 3; params.sizeWindowForTimeComparison += 2)
+					for (params.sizeWindowForTimeComparison = 3; params.sizeWindowForTimeComparison <= 3; params.sizeWindowForTimeComparison += 2)
 					{
-						for (params.windowValueCoeff = 0.7; params.windowValueCoeff <= 1.31; params.windowValueCoeff += 0.3)
+						for (params.windowValueCoeff = 0.6; params.windowValueCoeff <= 1.01; params.windowValueCoeff += 0.2)
 						{
-							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 3; params.availableSkippedPixelsForFindingArea += 2)
+							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 1; params.availableSkippedPixelsForFindingArea += 2)
 							{
-								for (params.radiusForCheckingNeighbours = 5; params.radiusForCheckingNeighbours <= 15; params.radiusForCheckingNeighbours += 5)
+								for (params.radiusForCheckingNeighbours = 1; params.radiusForCheckingNeighbours <= 7; params.radiusForCheckingNeighbours += 2)
 								{
-									for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.76; params.minCoeffForCompareNeighboursAreas += 0.15)
+									for (params.minCoeffForCompareNeighboursAreas = 0.5; params.minCoeffForCompareNeighboursAreas <= 0.91; params.minCoeffForCompareNeighboursAreas += 0.2)
 									{
 										params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
 										double res = filter.WithCompare(inputVideo, outputVideo, outputOutliersVideo, params, userVideo, testData);
