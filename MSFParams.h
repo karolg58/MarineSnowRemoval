@@ -15,7 +15,7 @@ public:
 
 	int availableSkippedPixelsForFindingArea = 3;
 
-	int minAreaForSuspectOutliers = 9;
+	int minAreaForSuspectOutliers = 15;
 	double radiusForCheckingNeighbours = 5.0; //relative for blur size 
 	double minCoeffForCompareNeighboursAreas = 0.75;
 	double maxCoeffForCompareNeighboursAreas = 1 / minCoeffForCompareNeighboursAreas;

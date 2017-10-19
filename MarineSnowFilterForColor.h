@@ -1,6 +1,7 @@
 #ifndef MARINESNOWFILTERFORCOLOR_H
 #define MARINESNOWFILTERFORCOLOR_H
 
+#include "GraphicLibrary.h"
 #include "MarineSnowFilter.h"
 #include "Histogram.h"
 
@@ -42,7 +43,7 @@ public:
 
 				if (frameNum > 3)
 				{
-					//CheckNeighborhoods(fIdx - 1);
+					CheckNeighborhoods(fIdx - 1);
 				}
 			}
 
@@ -84,7 +85,7 @@ public:
 
 				if (frameNum > 3)
 				{
-					//CheckNeighborhoods(fIdx - 1);
+					CheckNeighborhoods(fIdx - 1);
 				}
 			}
 
