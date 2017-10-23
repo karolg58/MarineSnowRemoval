@@ -31,19 +31,19 @@ public:
 			if (frameNum > 1) 
 			{
 
-				//MeanRGBdistances(*inputVideo.get()->GetFrameAt(frameNum));
+				MeanRGBdistances(*inputVideo.get()->GetFrameAt(frameNum));
 
 				//for color frames - only pixels which hava RGBdistance low enough could be outliers
-				//CheckRGBdistance();
+				CheckRGBdistance();
 
 				//looking for brights areas at frame
 				FindBrights();
 
-				FindAreas();
+				//FindAreas();
 
 				if (frameNum > 3)
 				{
-					CheckNeighborhoods(fIdx - 1);
+					//CheckNeighborhoods(fIdx - 1);
 				}
 			}
 
@@ -73,19 +73,19 @@ public:
 			if (frameNum > 1)
 			{
 
-				//MeanRGBdistances(*inputVideo.get()->GetFrameAt(frameNum));
+				MeanRGBdistances(*inputVideo.get()->GetFrameAt(frameNum));
 
 				//for color frames - only pixels which hava RGBdistance low enough could be outliers
-				//CheckRGBdistance();
+				CheckRGBdistance();
 
 				//looking for brights areas at frame
 				FindBrights();
 
-				FindAreas();
+				//FindAreas();
 
 				if (frameNum > 3)
 				{
-					CheckNeighborhoods(fIdx - 1);
+					//CheckNeighborhoods(fIdx - 1);
 				}
 			}
 
