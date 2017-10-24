@@ -43,7 +43,7 @@ public:
 
 				if (frameNum > 3)
 				{
-					//CheckNeighborhoods(fIdx - 1);
+					CheckNeighborhoods(fIdx - 1);
 				}
 			}
 
@@ -85,7 +85,7 @@ public:
 
 				if (frameNum > 3)
 				{
-					//CheckNeighborhoods(fIdx - 1);
+					CheckNeighborhoods(fIdx - 1);
 				}
 			}
 

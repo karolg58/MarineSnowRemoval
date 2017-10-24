@@ -19,7 +19,7 @@ int main(void) {
 	int numOfFrames = 30;//real - 4
 	int endFrame = startFrame + numOfFrames;
 	MSFparams params;
-	std::auto_ptr<TVideoFor<Color_3x8_Pixel>> inputVideo(CreateAndOrphan_ColorVideo_FromFiles("C:\\Users\\Dell\\Desktop\\INZYNIERKA\\antarktyda_jpg\\frame", "jpg", startFrame, endFrame));
+	std::auto_ptr<TVideoFor<Color_3x8_Pixel>> inputVideo(CreateAndOrphan_ColorVideo_FromFiles("C:\\Users\\Dell\\Desktop\\INZYNIERKA\\DeRecLibProject - Der\\MarineSnowRemoval\\der\\out", "jpg", startFrame, endFrame));
 	std::auto_ptr<TVideoFor<Color_3x8_Pixel>> outputVideo;
 	std::auto_ptr< TVideoFor<long> > outputOutliersVideo;
 	int kCols = inputVideo.get()->GetFrameAt(0)->GetCol();
@@ -42,25 +42,25 @@ int main(void) {
 	ofstream myfile(startPath + "\\params_output.txt");
 	ofstream testData(startPath + "\\testData.txt");
 
-	for (params.sectorsRGBnumber = 9; params.sectorsRGBnumber <= 25; params.sectorsRGBnumber += 16)
+	for (params.sectorsRGBnumber = 25; params.sectorsRGBnumber <= 25; params.sectorsRGBnumber += 16)
 	{
 		for (params.RGBdistanceCoeff = 0.8; params.RGBdistanceCoeff <= 1.21; params.RGBdistanceCoeff += 0.2)
 		{
-			for (params.RGBsectorsPercent = 0; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 33)
+			for (params.RGBsectorsPercent = 100; params.RGBsectorsPercent <= 100; params.RGBsectorsPercent += 33)
 			{
 				//6x
 				long long int time = clock();
-				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 2; params.typeForTimeComparison += 1)
+				for (params.typeForTimeComparison = 0; params.typeForTimeComparison <= 0; params.typeForTimeComparison += 1)
 				{
 					for (params.sizeWindowForTimeComparison = 1; params.sizeWindowForTimeComparison <= 5; params.sizeWindowForTimeComparison += 2)
 					{
-						for (params.windowValueCoeff = 0.9; params.windowValueCoeff <= 1.21; params.windowValueCoeff += 0.1)
+						for (params.windowValueCoeff = 0.8; params.windowValueCoeff <= 1.21; params.windowValueCoeff += 0.2)
 						{
 							for (params.availableSkippedPixelsForFindingArea = 1; params.availableSkippedPixelsForFindingArea <= 1; params.availableSkippedPixelsForFindingArea += 1)
 							{
-								for (params.radiusForCheckingNeighbours = 1; params.radiusForCheckingNeighbours <= 1; params.radiusForCheckingNeighbours += 1)
+								for (params.radiusForCheckingNeighbours = 0.5; params.radiusForCheckingNeighbours <= 5.5; params.radiusForCheckingNeighbours += 2)
 								{
-									for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.31; params.minCoeffForCompareNeighboursAreas += 0.2)
+									for (params.minCoeffForCompareNeighboursAreas = 0.3; params.minCoeffForCompareNeighboursAreas <= 0.91; params.minCoeffForCompareNeighboursAreas += 0.2)
 									{
 										params.maxCoeffForCompareNeighboursAreas = 1 / params.minCoeffForCompareNeighboursAreas;
 										double res = filter.WithCompare(inputVideo, outputVideo, outputOutliersVideo, params, userVideo, testData);
